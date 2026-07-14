@@ -11,6 +11,8 @@ import net.fabricmc.fabric.api.client.command.v2.FabricClientCommandSource;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
+import com.pepeprice.config.ConfigManager;
+
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.block.entity.SignText;
@@ -76,7 +78,7 @@ public class PepePriceClient implements ClientModInitializer {
 
     private static final File regionsFile = new File("regions.json");
 
-    private static final String SERVER_URL = "http://localhost:3000/neural";
+    private static String apiUrl = ConfigManager.apiUrl;
 
     private static final int REGION_MIN_X = -162;
     private static final int REGION_MAX_X = 220;
@@ -137,15 +139,13 @@ public class PepePriceClient implements ClientModInitializer {
     private boolean isHighlightingActive = false;
     private boolean drawShapeEnabled = false;
 
-    private static boolean autoProcessBarrelEnabled = true;
-
     private static final AtomicReference<ScreenHandler> delayedHandler = new AtomicReference<>();
     private static final AtomicInteger delayTicks = new AtomicInteger(0);
     @Override
     public void onInitializeClient() {
         loadRegions();
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            if (!autoProcessBarrelEnabled) return;
+            if (!ConfigManager.isSendBarrels) return;
 
             if (screen instanceof GenericContainerScreen) {
                 GenericContainerScreen containerScreen = (GenericContainerScreen) screen;
@@ -186,13 +186,6 @@ public class PepePriceClient implements ClientModInitializer {
                         }
                         return 1;
                     });
-
-            LiteralArgumentBuilder<FabricClientCommandSource> toggleBarrelSaveCommand = LiteralArgumentBuilder
-            .<FabricClientCommandSource>literal("togglebarrelsave")
-            .executes(context -> {
-                toggleAutoProcessBarrel();
-                return 1;
-            });
 
             LiteralArgumentBuilder<FabricClientCommandSource> allRegionsCommand = LiteralArgumentBuilder
             .<FabricClientCommandSource>literal("allregions")
@@ -236,22 +229,20 @@ public class PepePriceClient implements ClientModInitializer {
             LiteralArgumentBuilder<FabricClientCommandSource> scanRegionCommand =
             LiteralArgumentBuilder.<FabricClientCommandSource>literal("scan")
                 .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("regionName", StringArgumentType.word())
-                    .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("token", StringArgumentType.word())
-                        .executes(context -> {
-                            MinecraftClient client = MinecraftClient.getInstance();
-                            String regionName = StringArgumentType.getString(context, "regionName");
-                            String token = StringArgumentType.getString(context, "token");
-                            if (client.player != null) {
-                                Region region = findRegionByName(regionName);
-                                if (region != null) {
-                                    scanSignsInBounds(client, region, token);
-                                } else {
-                                    client.player.sendMessage(Text.literal("Регион с именем " + regionName + " не найден."), false);
-                                }
+                    .executes(context -> {
+                        MinecraftClient client = MinecraftClient.getInstance();
+                        String regionName = StringArgumentType.getString(context, "regionName");
+                        String apiKey = ConfigManager.apiKey;
+                        if (client.player != null) {
+                            Region region = findRegionByName(regionName);
+                            if (region != null) {
+                                scanSignsInBounds(client, region, apiKey);
+                            } else {
+                                client.player.sendMessage(Text.literal("Регион с именем " + regionName + " не найден."), false);
                             }
-                            return 1;
-                        })
-                    )
+                        }
+                        return 1;
+                    })
                 );
 
             LiteralArgumentBuilder<FabricClientCommandSource> searchBarrelCommand =
@@ -354,7 +345,6 @@ public class PepePriceClient implements ClientModInitializer {
             dispatcher.register(scanRegionCommand);
             dispatcher.register(searchBarrelCommand);
             dispatcher.register(showBarrelContentCommand);
-            dispatcher.register(toggleBarrelSaveCommand);
             dispatcher.register(allRegionsCommand);
         });
 
@@ -463,7 +453,7 @@ public class PepePriceClient implements ClientModInitializer {
         RenderSystem.disableBlend();
     }
     
-    private void scanSignsInBounds(MinecraftClient client, Region region, String token) {
+    private void scanSignsInBounds(MinecraftClient client, Region region, String apiKey) {
         if (client.world != null && client.player != null && region != null) {
             ClientWorld world = client.world;
             BlockPos minPos = region.getMinPos();
@@ -506,12 +496,12 @@ public class PepePriceClient implements ClientModInitializer {
                     }
                 }
             }
-            sendBarrelDataToServer(barrelDataList, token);
+            sendBarrelDataToServer(barrelDataList, apiKey);
         }
     }
     
 
-    private void sendBarrelDataToServer(List<JsonObject> barrelDataList, String token) {
+    private void sendBarrelDataToServer(List<JsonObject> barrelDataList, String apiKey) {
         try {    
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null) {
@@ -525,9 +515,9 @@ public class PepePriceClient implements ClientModInitializer {
             }
         
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SERVER_URL))
+                    .uri(URI.create(apiUrl))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + token)
+                    .header("Authorization", "Bearer " + apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(jsonArray.toString()))
                     .build();
         
@@ -550,7 +540,7 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(SERVER_URL + "/items"))
+                    .uri(URI.create(apiUrl + "/items"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                     .build();
@@ -570,7 +560,7 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-            String requestUrl = SERVER_URL + "/barrels" + "?name=" + encodedSearchTerm + "&page=" + page;
+            String requestUrl = apiUrl + "/barrels" + "?name=" + encodedSearchTerm + "&page=" + page;
             client.player.sendMessage(Text.literal("§a[BarrelSearch] §fПоиск по запросу: §e" + searchTerm + " §f(Страница " + page + ")..."), false);
     
             HttpRequest request = HttpRequest.newBuilder()
@@ -791,16 +781,5 @@ public class PepePriceClient implements ClientModInitializer {
         public BlockPos toBlockPos() { return new BlockPos(x, y, z); }
         @Override
         public String toString() { return "(" + x + ", " + y + ", " + z + ")"; }
-    }
-
-    public static void toggleAutoProcessBarrel() {
-        autoProcessBarrelEnabled = !autoProcessBarrelEnabled;
-        MinecraftClient client = MinecraftClient.getInstance();
-        if (client.player != null) {
-            client.player.sendMessage(
-                Text.literal("Автообработка бочек " + (autoProcessBarrelEnabled ? "включена" : "отключена")),
-                false
-            );
-        }
     }
 }

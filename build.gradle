@@ -12,8 +12,12 @@ base {
 
 repositories {
     maven {
-        name 'Xander Maven'
-        url 'https://maven.isxander.dev/releases'
+        name = 'Xander Maven'
+        url = 'https://maven.isxander.dev/releases'
+    }
+	maven {
+        name = "Modrinth"
+        url = "https://api.modrinth.com/maven"
     }
     mavenCentral()
 }
@@ -36,6 +40,7 @@ dependencies {
 	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
 	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
 	modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
+	modImplementation "maven.modrinth:modmenu:${project.modmenu_version}"
 	implementation 'com.google.code.gson:gson:2.10'
 }
 
