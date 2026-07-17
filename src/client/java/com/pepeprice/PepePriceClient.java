@@ -39,6 +39,7 @@ import net.minecraft.util.Formatting;
 import net.minecraft.text.MutableText;
 import net.minecraft.block.WallSignBlock;
 import net.minecraft.util.math.Direction;
+
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.minecraft.text.ClickEvent;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
@@ -465,7 +466,7 @@ public class PepePriceClient implements ClientModInitializer {
             int startZ = Math.min(minPos.getZ(), maxPos.getZ());
             int endZ = Math.max(minPos.getZ(), maxPos.getZ());
     
-            List<JsonObject> barrelDataList = new ArrayList<>();
+            JsonArray barrelDataList = new JsonArray();
     
             for (int x = startX; x <= endX; x++) {
                 for (int y = startY; y <= endY; y++) {
@@ -481,14 +482,14 @@ public class PepePriceClient implements ClientModInitializer {
                                 SignText signContent = sign.getText(true);
                                 for (int i = 0; i < 4; i++) {
                                     String lineText = signContent.getMessage(i, false).getString();
-                                    signText.append(lineText).append(" ");
+                                    signText.append(lineText).append("\n");
                                 }
                                 
                                 JsonObject json = new JsonObject();
                                 json.addProperty("x", attachedBlockPos.getX());
                                 json.addProperty("y", attachedBlockPos.getY());
                                 json.addProperty("z", attachedBlockPos.getZ());
-                                json.addProperty("text", signText.toString().trim());
+                                json.addProperty("message", signText.toString().trim());
                                 
                                 barrelDataList.add(json);
                             }
@@ -501,7 +502,7 @@ public class PepePriceClient implements ClientModInitializer {
     }
     
 
-    private void sendBarrelDataToServer(List<JsonObject> barrelDataList, String apiKey) {
+    private void sendBarrelDataToServer(JsonArray barrelDataList, String apiKey) {
         try {    
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null) {
@@ -509,16 +510,12 @@ public class PepePriceClient implements ClientModInitializer {
             }
         
             HttpClient httpClient = HttpClient.newHttpClient();
-            JsonArray jsonArray = new JsonArray();
-            for (JsonObject json : barrelDataList) {
-                jsonArray.add(json);
-            }
         
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl))
+                    .uri(URI.create(apiUrl + "/barrels"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + apiKey)
-                    .POST(HttpRequest.BodyPublishers.ofString(jsonArray.toString()))
+                    .POST(HttpRequest.BodyPublishers.ofString(barrelDataList.toString()))
                     .build();
         
             httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
@@ -540,7 +537,7 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl + "/items"))
+                    .uri(URI.create(apiUrl + "/barrels/items"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                     .build();
@@ -560,7 +557,7 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-            String requestUrl = apiUrl + "/barrels" + "?name=" + encodedSearchTerm + "&page=" + page;
+            String requestUrl = apiUrl + "/barrels" + "?query=" + encodedSearchTerm + "&page=" + page;
             client.player.sendMessage(Text.literal("§a[BarrelSearch] §fПоиск по запросу: §e" + searchTerm + " §f(Страница " + page + ")..."), false);
     
             HttpRequest request = HttpRequest.newBuilder()
@@ -717,13 +714,14 @@ public class PepePriceClient implements ClientModInitializer {
                 if (itemName.isEmpty()) {
                     itemName = "Unknown item";
                 }
-                itemsArray.add(itemName);
-                itemsArray.add(stack.getCount());
+                JsonObject item = new JsonObject();
+                item.addProperty("name", itemName);
+                item.addProperty("quantity", stack.getCount());
+                itemsArray.add(item);
             }
         }
-        String itemsString = itemsArray.toString().replaceAll("[\\[\\]]", "");
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("items", itemsString);
+        jsonObject.add("items", itemsArray);
         jsonObject.addProperty("x", x);
         jsonObject.addProperty("y", y);
         jsonObject.addProperty("z", z);
