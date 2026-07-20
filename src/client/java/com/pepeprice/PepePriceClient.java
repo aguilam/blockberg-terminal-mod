@@ -72,14 +72,11 @@ import java.util.concurrent.atomic.AtomicReference;
 
 @Environment(EnvType.CLIENT)
 public class PepePriceClient implements ClientModInitializer {
-
     private static BlockPos tempMinPos;
     private static BlockPos tempMaxPos;
     private static final List<Region> regions = new ArrayList<>();
 
     private static final File regionsFile = new File("regions.json");
-
-    private static String apiUrl = ConfigManager.apiUrl;
 
     private static final int REGION_MIN_X = -162;
     private static final int REGION_MAX_X = 220;
@@ -145,6 +142,7 @@ public class PepePriceClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         loadRegions();
+        ConfigManager.load();
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (!ConfigManager.isSendBarrels) return;
 
@@ -510,9 +508,11 @@ public class PepePriceClient implements ClientModInitializer {
             }
         
             HttpClient httpClient = HttpClient.newHttpClient();
-        
+            System.out.println(ConfigManager.apiUrl);
+            System.out.println(URI.create(ConfigManager.apiUrl));
+            System.out.println(URI.create(ConfigManager.apiUrl + "/barrels"));
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl + "/barrels"))
+                    .uri(URI.create(ConfigManager.apiUrl + "/barrels"))
                     .header("Content-Type", "application/json")
                     .header("Authorization", "Bearer " + apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(barrelDataList.toString()))
@@ -537,11 +537,15 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(apiUrl + "/barrels/items"))
+                    .uri(URI.create(ConfigManager.apiUrl + "/barrels/items"))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(json.toString()))
                     .build();
-            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenAccept(response -> {
+                        System.out.println("STATUS: " + response.statusCode());
+                        System.out.println("BODY: " + response.body());
+                    })
                     .exceptionally(e -> {
                         e.printStackTrace();
                         return null;
@@ -557,7 +561,7 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-            String requestUrl = apiUrl + "/barrels" + "?query=" + encodedSearchTerm + "&page=" + page;
+            String requestUrl = ConfigManager.apiUrl + "/barrels" + "?query=" + encodedSearchTerm + "&page=" + page;
             client.player.sendMessage(Text.literal("§a[BarrelSearch] §fПоиск по запросу: §e" + searchTerm + " §f(Страница " + page + ")..."), false);
     
             HttpRequest request = HttpRequest.newBuilder()
