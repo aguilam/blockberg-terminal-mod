@@ -87,6 +87,25 @@ public class PepePriceClient implements ClientModInitializer {
 
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
+    private static class BarrelSearchBody {
+        int total;
+        int page;
+        int limit;
+        BarrelSearchItem[] barrels;
+    }
+
+    private static class BarrelSearchItem {
+        int id;
+        String name;
+        String seller;
+        int price;
+        int quantity;
+        int x;
+        int y;
+        int z;
+        double benefitRation;
+        String recordDate;
+    }
     private static class BarrelOffer {
         String name;
         String seller;
@@ -98,6 +117,7 @@ public class PepePriceClient implements ClientModInitializer {
         double benefitRation;
         BarrelItems[] barrelItems;
     }
+
     private static class BarrelItems {
         String items;
         int x;
@@ -319,8 +339,8 @@ public class PepePriceClient implements ClientModInitializer {
                                     
                                         SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
                                     
-                                        Date parsedDate = isoFormat.parse(bi.createdAt); 
-                                        String formattedDate = sdf.format(parsedDate);   
+                                        Date parsedDate = isoFormat.parse(bi.createdAt);
+                                        String formattedDate = sdf.format(parsedDate); 
                                     
                                         biText = biText.append(Text.literal(" (от " + formattedDate + ")").formatted(Formatting.DARK_GRAY));
                                     } catch (ParseException e) {
@@ -561,7 +581,7 @@ public class PepePriceClient implements ClientModInitializer {
         try {
             HttpClient httpClient = HttpClient.newHttpClient();
             String encodedSearchTerm = URLEncoder.encode(searchTerm, StandardCharsets.UTF_8);
-            String requestUrl = ConfigManager.apiUrl + "/barrels" + "?query=" + encodedSearchTerm + "&page=" + page;
+            String requestUrl = ConfigManager.apiUrl + "/barrels" + "?query=" + encodedSearchTerm + "&page=" + page + "&page_size=10";
             client.player.sendMessage(Text.literal("§a[BarrelSearch] §fПоиск по запросу: §e" + searchTerm + " §f(Страница " + page + ")..."), false);
     
             HttpRequest request = HttpRequest.newBuilder()
@@ -572,12 +592,8 @@ public class PepePriceClient implements ClientModInitializer {
             httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
                     .thenAccept(response -> {
                         try {
-                            Type listType = new TypeToken<List<BarrelOffer>>(){}.getType();
-                            List<BarrelOffer> offers = gson.fromJson(response.body(), listType);
-                            offers.sort((o1, o2) -> Double.compare(o2.benefitRation, o1.benefitRation));
-                            int count = Math.min(offers.size(), 10);
-                            List<BarrelOffer> bestOffers = offers.subList(0, count);
-                            GlobalData.setLastOffers(bestOffers);
+                            Type listType = new TypeToken<BarrelSearchBody>(){}.getType();
+                            BarrelSearchBody offers = gson.fromJson(response.body(), listType); 
                             client.execute(() -> {
                                 drawShapeEnabled = true;
                                 highlightedBlocks.clear();
@@ -589,28 +605,39 @@ public class PepePriceClient implements ClientModInitializer {
                                     Formatting.DARK_RED
                                 };
     
-                                client.player.sendMessage(Text.literal("§a[BarrelSearch] §fНайдено " + count + " предложений (Страница " + page + "):"), false);
-    
-                                for (int i = 0; i < bestOffers.size(); i++) {
-                                    BarrelOffer offer = bestOffers.get(i);
+                                client.player.sendMessage(Text.literal("§a[BarrelSearch] §fНайдено " + offers.total + "" + " предложений (Страница " + offers.page + "):"), false);
+                                for (int i = 0; i < offers.barrels.length; i++) {
+                                    BarrelSearchItem offer = offers.barrels[i];
                                     Formatting rankColor = rankColors[i % rankColors.length];
                                 
                                     MutableText formattedMessage = Text.literal((i + 1) + ". ")
                                             .styled(style -> style.withColor(rankColor.getColorValue()))
                                             .append(Text.literal(offer.name)
-                                                    .styled(style -> style.withColor(rankColor.getColorValue())))
+                                            .styled(style -> style.withColor(rankColor.getColorValue())))
                                             .append(Text.literal(" §7| Продавец: §6" + offer.seller))
-                                            .append(Text.literal(" §7| Цена: §e" + String.format("%.2f", offer.price)))
+                                            .append(Text.literal(" §7| Цена: §e" + offer.price))
                                             .append(Text.literal(" §7| Кол-во: §b" + offer.quantity))
                                             .append(Text.literal(" §7| XYZ: §5" + String.format("(%d, %d, %d)", offer.x, offer.y, offer.z)));
-                                    client.player.sendMessage(formattedMessage, false);
-                                    final int index = i;
-                                    if (offer.barrelItems != null && offer.barrelItems.length > 0) {
-                                        client.player.sendMessage(Text.literal("[Посмотреть содержимое бочки]")
-                                            .styled(style -> style.withColor(0x00AAFF)
-                                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                                "/showbarrelcontent " + index))), false);
+                                    try {
+                                        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                                    
+                                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+                                    
+                                        Date parsedDate = isoFormat.parse(offer.recordDate);
+                                        String formattedDate = sdf.format(parsedDate); 
+                                    
+                                        formattedMessage = formattedMessage.append(Text.literal(" §7| Recorded: §9" + formattedDate));
+                                    } catch (ParseException e) {
+                                        e.printStackTrace();
                                     }
+                                    client.player.sendMessage(formattedMessage, false);
+                                    //final int index = i;
+                                    //if (offer.barrelItems != null && offer.barrelItems.length > 0) {
+                                    //    client.player.sendMessage(Text.literal("[Посмотреть содержимое бочки]")
+                                    //        .styled(style -> style.withColor(0x00AAFF)
+                                    //        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                    //            "/showbarrelcontent " + index))), false);
+                                    //}
 
                                     Integer colorValue = rankColor.getColorValue();
                                     if (colorValue == null) {
@@ -633,24 +660,26 @@ public class PepePriceClient implements ClientModInitializer {
                                     float bNorm = (colorValue & 0xFF) / 255f;
                                     highlightedBlocks.add(new HighlightedBlock(new BlockPos(offer.x, offer.y, offer.z), rNorm, gNorm, bNorm, i + 1));
                                 }
-                                GlobalData.setLastOffers(bestOffers);
 
                                 MutableText paginationText = Text.literal("");
-                                if (page > 1) {
+                                if (offers.page > 1) {
                                     paginationText = paginationText.append(
                                         Text.literal("[Предыдущая страница]")
                                             .styled(style -> style.withColor(Formatting.AQUA.getColorValue())
                                                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                                    "/searchbarrel " + (page - 1) + " " + searchTerm)))
+                                                    "/searchbarrel " + (offers.page - 1) + " " + searchTerm)))
                                     );
                                 }
-                                paginationText = paginationText.append(Text.literal(" "));
-                                paginationText = paginationText.append(
-                                        Text.literal("[Следующая страница]")
-                                            .styled(style -> style.withColor(Formatting.AQUA.getColorValue())
-                                                .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                                    "/searchbarrel " + (page + 1) + " " + searchTerm)))
-                                );
+                                int totalPages = (offers.total + offers.limit - 1) / offers.limit;
+                                if (totalPages > offers.page) {
+                                    paginationText = paginationText.append(Text.literal(" "));
+                                    paginationText = paginationText.append(
+                                            Text.literal("[Следующая страница]")
+                                                .styled(style -> style.withColor(Formatting.AQUA.getColorValue())
+                                                    .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                        "/searchbarrel " + (offers.page + 1) + " " + searchTerm)))
+                                    );
+                                }
                                 client.player.sendMessage(paginationText, false);
                             });
                         } catch (Exception e) {
