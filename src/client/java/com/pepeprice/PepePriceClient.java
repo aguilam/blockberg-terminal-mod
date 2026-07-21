@@ -103,9 +103,35 @@ public class PepePriceClient implements ClientModInitializer {
         int x;
         int y;
         int z;
-        double benefitRation;
+        double benefitRatio;
+        int snapshotsCount;
         String recordDate;
     }
+
+    public static class BarrelItem {
+        String name;
+        int quantity;
+    }
+
+    private static class BarrelSnapshot {
+        BarrelItem[] items;
+        String recordDate;
+    }
+
+    private static class BarrelInfo {
+        int id;
+        String name;
+        String seller;
+        int price;
+        int quantity;
+        int x;
+        int y;
+        int z;
+        double benefitRatio;
+        BarrelSnapshot barrelItems;
+        String recordDate;
+    }
+
     private static class BarrelOffer {
         String name;
         String seller;
@@ -114,7 +140,7 @@ public class PepePriceClient implements ClientModInitializer {
         int x;
         int y;
         int z;
-        double benefitRation;
+        double benefitRatio;
         BarrelItems[] barrelItems;
     }
 
@@ -291,68 +317,8 @@ public class PepePriceClient implements ClientModInitializer {
                 LiteralArgumentBuilder.<FabricClientCommandSource>literal("showbarrelcontent")
                     .then(RequiredArgumentBuilder.<FabricClientCommandSource, Integer>argument("barrelIndex", IntegerArgumentType.integer(0))
                         .executes(context -> {
-                            int barrelIndex = IntegerArgumentType.getInteger(context, "barrelIndex");
-                            MinecraftClient client = MinecraftClient.getInstance();
-                            List<BarrelOffer> offers = GlobalData.getLastOffers();
-                            
-                            if (barrelIndex < 0 || barrelIndex >= offers.size()) {
-                                client.player.sendMessage(Text.literal("Неверный индекс бочки."), false);
-                                return 0;
-                            }
-                            BarrelOffer offer = offers.get(barrelIndex);
-                            
-                            MutableText fullContentMessage = Text.literal("Полное содержимое бочки:\n").formatted(Formatting.GRAY)
-                                .append(Text.literal("Название: ").formatted(Formatting.WHITE)
-                                    .append(Text.literal(offer.name).formatted(Formatting.GOLD)))
-                                .append(Text.literal("\nПродавец: ").formatted(Formatting.WHITE)
-                                    .append(Text.literal(offer.seller).formatted(Formatting.AQUA)))
-                                .append(Text.literal("\nЦена: ").formatted(Formatting.WHITE)
-                                    .append(Text.literal(String.format("%.2f", offer.price)).formatted(Formatting.YELLOW)))
-                                .append(Text.literal("\nКоличество: ").formatted(Formatting.WHITE)
-                                    .append(Text.literal(String.valueOf(offer.quantity)).formatted(Formatting.GREEN)))
-                                .append(Text.literal("\nКоординаты: ").formatted(Formatting.WHITE)
-                                    .append(Text.literal(String.format("(%d, %d, %d)", offer.x, offer.y, offer.z)).formatted(Formatting.LIGHT_PURPLE)))
-                                .append(Text.literal("\n"));
-                            
-                            if (offer.barrelItems != null && offer.barrelItems.length > 0) {
-                                fullContentMessage = fullContentMessage.append(Text.literal("\nСодержимое:").formatted(Formatting.WHITE));
-                                for (BarrelItems bi : offer.barrelItems) {
-                                    String[] parts = bi.items.split(",");
-                                    MutableText biText = Text.literal("\n - ").formatted(Formatting.GRAY);
-                                    for (int i = 0; i < parts.length; i += 2) {
-                                        if (i + 1 < parts.length) {
-                                            String itemName = parts[i].trim();
-                                            String itemQuantity = parts[i + 1].trim();
-                                            MutableText pairText = Text.literal(itemName)
-                                                .styled(style -> style.withColor(Formatting.GOLD.getColorValue()))
-                                                .append(Text.literal(" x" + itemQuantity)
-                                                .styled(style -> style.withColor(Formatting.AQUA.getColorValue())));
-                                            biText = biText.append(pairText);
-                                            if (i + 2 < parts.length) {
-                                                biText = biText.append(Text.literal(", "));
-                                            }
-                                        }
-                                    }
-                                    try {
-                                        SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
-                                        isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
-                                    
-                                        SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
-                                    
-                                        Date parsedDate = isoFormat.parse(bi.createdAt);
-                                        String formattedDate = sdf.format(parsedDate); 
-                                    
-                                        biText = biText.append(Text.literal(" (от " + formattedDate + ")").formatted(Formatting.DARK_GRAY));
-                                    } catch (ParseException e) {
-                                        e.printStackTrace();
-                                    }
-                                    fullContentMessage = fullContentMessage.append(biText);
-                                }
-                            } else {
-                                fullContentMessage = fullContentMessage.append(Text.literal("\nНет содержимого в бочке.").formatted(Formatting.RED));
-                            }
-                            
-                            client.player.sendMessage(fullContentMessage, false);
+                            int barrelId = IntegerArgumentType.getInteger(context, "barrelIndex");
+                            getBarrelInfo(MinecraftClient.getInstance(),barrelId);
                             return 1;
                         })
                     );
@@ -575,6 +541,63 @@ public class PepePriceClient implements ClientModInitializer {
         }
     }
 
+    private void getBarrelInfo(MinecraftClient client, int barrelid) {
+        try {
+            HttpClient httpClient = HttpClient.newHttpClient();
+            String url = ConfigManager.apiUrl + "/barrels/" + barrelid;
+            HttpRequest request = HttpRequest.newBuilder().uri(URI.create(url)).GET().build();
+            httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                .thenAccept(response -> {
+                    try {
+                        Type type = new TypeToken<BarrelInfo>(){}.getType();
+                        BarrelInfo info = gson.fromJson(response.body(), type);
+                        MutableText fullContentMessage = Text.literal("Полное содержимое бочки:\n").formatted(Formatting.GRAY)
+                                .append(Text.literal("Название: ").formatted(Formatting.WHITE)
+                                    .append(Text.literal(info.name).formatted(Formatting.GOLD)))
+                                .append(Text.literal("\nПродавец: ").formatted(Formatting.WHITE)
+                                    .append(Text.literal(info.seller).formatted(Formatting.AQUA)))
+                                .append(Text.literal("\nЦена: ").formatted(Formatting.WHITE)
+                                    .append(Text.literal(String.format("%d", info.price)).formatted(Formatting.YELLOW)))
+                                .append(Text.literal("\nКоличество: ").formatted(Formatting.WHITE)
+                                    .append(Text.literal(String.valueOf(info.quantity)).formatted(Formatting.GREEN)))
+                                .append(Text.literal("\nКоординаты: ").formatted(Formatting.WHITE)
+                                    .append(Text.literal(String.format("(%d, %d, %d)", info.x, info.y, info.z)).formatted(Formatting.LIGHT_PURPLE)))
+                                .append(Text.literal("\n"));
+                            
+                            if (info.barrelItems != null) {
+                                fullContentMessage = fullContentMessage.append(Text.literal("\nСодержимоe:").formatted(Formatting.WHITE));
+                                for (BarrelItem item : info.barrelItems.items) {
+                                    MutableText itemText = Text.literal("\n- ").formatted(Formatting.GRAY)
+                                        .append(item.name).formatted(Formatting.GOLD)
+                                        .append(" x " + String.valueOf(item.quantity)).formatted(Formatting.AQUA);
+                                    fullContentMessage.append(itemText);
+                                }
+                                try {
+                                    SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
+                                    isoFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+                                
+                                    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yyyy");
+                                    
+                                    Date parsedDate = isoFormat.parse(info.barrelItems.recordDate);
+                                    String formattedDate = sdf.format(parsedDate); 
+                                
+                                    fullContentMessage = fullContentMessage.append(Text.literal(" (от " + formattedDate + ")").formatted(Formatting.DARK_GRAY));
+                                } catch (ParseException e) {
+                                    e.printStackTrace();
+                                }
+                            } else {
+                                fullContentMessage = fullContentMessage.append(Text.literal("\nСодержимое в бочке не известно").formatted(Formatting.RED));
+                            }
+                            client.player.sendMessage(fullContentMessage, false);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void searchBarrels(MinecraftClient client, String searchTerm, int page) {
         if (client.player == null) return;
         
@@ -631,13 +654,12 @@ public class PepePriceClient implements ClientModInitializer {
                                         e.printStackTrace();
                                     }
                                     client.player.sendMessage(formattedMessage, false);
-                                    //final int index = i;
-                                    //if (offer.barrelItems != null && offer.barrelItems.length > 0) {
-                                    //    client.player.sendMessage(Text.literal("[Посмотреть содержимое бочки]")
-                                    //        .styled(style -> style.withColor(0x00AAFF)
-                                    //        .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                    //            "/showbarrelcontent " + index))), false);
-                                    //}
+                                    if (offer.snapshotsCount > 0) {
+                                        client.player.sendMessage(Text.literal("[Посмотреть содержимое бочки]")
+                                            .styled(style -> style.withColor(0x00AAFF)
+                                            .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
+                                                "/showbarrelcontent " + offer.id))), false);
+                                    }
 
                                     Integer colorValue = rankColor.getColorValue();
                                     if (colorValue == null) {
