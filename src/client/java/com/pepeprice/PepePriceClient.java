@@ -132,38 +132,6 @@ public class PepePriceClient implements ClientModInitializer {
         String recordDate;
     }
 
-    private static class BarrelOffer {
-        String name;
-        String seller;
-        double price;
-        int quantity;
-        int x;
-        int y;
-        int z;
-        double benefitRatio;
-        BarrelItems[] barrelItems;
-    }
-
-    private static class BarrelItems {
-        String items;
-        int x;
-        int y;
-        int z;
-        String createdAt;
-    }
-    private static class GlobalData {
-        private static List<BarrelOffer> lastOffers = new ArrayList<>();
-    
-        public static void setLastOffers(List<BarrelOffer> offers) {
-            lastOffers = offers;
-        }
-    
-        public static List<BarrelOffer> getLastOffers() {
-            return lastOffers;
-        }
-    }
-    private static List<BarrelOffer> highlightedBarrels = new ArrayList<>();
-
     private static class HighlightedBlock {
         BlockPos pos;
         float red, green, blue, alpha;
@@ -277,11 +245,10 @@ public class PepePriceClient implements ClientModInitializer {
                     .executes(context -> {
                         MinecraftClient client = MinecraftClient.getInstance();
                         String regionName = StringArgumentType.getString(context, "regionName");
-                        String apiKey = ConfigManager.apiKey;
                         if (client.player != null) {
                             Region region = findRegionByName(regionName);
                             if (region != null) {
-                                scanSignsInBounds(client, region, apiKey);
+                                scanSignsInBounds(client, region);
                             } else {
                                 client.player.sendMessage(Text.literal("Регион с именем " + regionName + " не найден."), false);
                             }
@@ -438,7 +405,7 @@ public class PepePriceClient implements ClientModInitializer {
         RenderSystem.disableBlend();
     }
     
-    private void scanSignsInBounds(MinecraftClient client, Region region, String apiKey) {
+    private void scanSignsInBounds(MinecraftClient client, Region region) {
         if (client.world != null && client.player != null && region != null) {
             ClientWorld world = client.world;
             BlockPos minPos = region.getMinPos();
@@ -481,12 +448,12 @@ public class PepePriceClient implements ClientModInitializer {
                     }
                 }
             }
-            sendBarrelDataToServer(barrelDataList, apiKey);
+            sendBarrelDataToServer(barrelDataList);
         }
     }
     
 
-    private void sendBarrelDataToServer(JsonArray barrelDataList, String apiKey) {
+    private void sendBarrelDataToServer(JsonArray barrelDataList) {
         try {    
             MinecraftClient client = MinecraftClient.getInstance();
             if (client.player != null) {
@@ -494,13 +461,10 @@ public class PepePriceClient implements ClientModInitializer {
             }
         
             HttpClient httpClient = HttpClient.newHttpClient();
-            System.out.println(ConfigManager.apiUrl);
-            System.out.println(URI.create(ConfigManager.apiUrl));
-            System.out.println(URI.create(ConfigManager.apiUrl + "/barrels"));
             HttpRequest request = HttpRequest.newBuilder()
                     .uri(URI.create(ConfigManager.apiUrl + "/barrels"))
                     .header("Content-Type", "application/json")
-                    .header("Authorization", "Bearer " + apiKey)
+                    .header("Authorization", "Bearer " + ConfigManager.apiKey)
                     .POST(HttpRequest.BodyPublishers.ofString(barrelDataList.toString()))
                     .build();
         
