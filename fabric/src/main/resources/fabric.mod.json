@@ -12,21 +12,17 @@
 	"environment": "client",	
 	"entrypoints": {
 		"client": [
-			"com.aguilam.blockberg_terminal.BlockberTerminal"
+			"com.aguilam.blockberg_terminal.fabric"
 		],
 		"main": [
-			"com.aguilam.blockberg_terminal.BlockberTerminal"
+			"com.aguilam.blockberg_terminal.BlockbergTerminal"
 		],
 		"modmenu": [
 			"com.aguilam.blockberg_terminal.config.ModMenuIntegration"
 		]
 	},
 	"mixins": [
-		"pepe-price.mixins.json",
-		{
-			"config": "pepe-price.client.mixins.json",
-			"environment": "client"
-		}
+		"blockberg_terminal.mixins.json"
 	],
 	"depends": {
 		"fabricloader": ">=0.16.10",
