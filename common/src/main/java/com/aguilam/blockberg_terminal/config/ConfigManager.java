@@ -7,15 +7,12 @@ import java.io.FileReader;
 import java.io.FileWriter;
 
 public class ConfigManager {
-    private File file;
+    public static File file;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static boolean isSendBarrels = true;
     public static String apiUrl = "";
     public static String apiKey = "";
-    public ConfigManager(File file){
-        this.file = file;
-    }
-    public void load(){
+    public static void load(){
         if(!file.exists()){
             save();
             return;
@@ -34,7 +31,7 @@ public class ConfigManager {
         }
     }
 
-    public void save(){
+    public static void save(){
         try (FileWriter writer = new FileWriter(file)){
             ConfigData data = new ConfigData(isSendBarrels,apiUrl,apiKey);
             GSON.toJson(data,writer);

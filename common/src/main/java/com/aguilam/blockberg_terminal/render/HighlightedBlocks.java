@@ -1,8 +1,19 @@
 package com.aguilam.blockberg_terminal.render;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import net.minecraft.core.BlockPos;
 
 public class HighlightedBlocks {
+    public static List<HighlightedBlock> blocks = new ArrayList<>();
+    public static boolean drawShapeEnabled = false;
+
+    public static void clearBlocks(){
+        if (blocks.size() > 0) {
+            blocks.clear();
+        }
+    }
     public static class HighlightedBlock {
         BlockPos pos;
         float red, green, blue, alpha;

@@ -3,7 +3,7 @@ package com.aguilam.blockberg_terminal.model;
 import net.minecraft.core.BlockPos;
 
 public class Regions {
-    public class Region {
+    public static class Region {
         private BlockPosWrapper minPos;
         private BlockPosWrapper maxPos;
         private String regionName;
@@ -22,7 +22,7 @@ public class Regions {
         }
     }
 
-    public class BlockPosWrapper {
+    public static class BlockPosWrapper {
         private int x, y, z;
         public BlockPosWrapper(BlockPos pos) { this.x = pos.getX(); this.y = pos.getY(); this.z = pos.getZ(); }
         public BlockPos toBlockPos() { return new BlockPos(x, y, z); }

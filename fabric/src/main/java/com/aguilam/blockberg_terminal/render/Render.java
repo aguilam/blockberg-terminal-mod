@@ -4,17 +4,18 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CoreShaders;
-
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
+import com.aguilam.blockberg_terminal.render.HighlightedBlocks.*;
 import com.mojang.blaze3d.vertex.VertexFormat;
 public class Render {
     public static void renderHighlightedBlocks(WorldRenderContext context) {
-        if (!drawShapeEnabled || highlightedBlocks.isEmpty()) return;
+        if (!HighlightedBlocks.drawShapeEnabled || HighlightedBlocks.blocks.isEmpty()) return;
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null) return;
 
@@ -25,16 +26,16 @@ public class Render {
 
         RenderSystem.disableDepthTest();
 
-        for (HighlightedBlock block : highlightedBlocks) {
+        for (HighlightedBlock block : HighlightedBlocks.blocks) {
             renderCube(matrices, block);
         }
 
         RenderSystem.enableDepthTest();
-        matrices.pop();
+        matrices.popPose();
     }
 
-    private void renderCube(PoseStack matrices, HighlightedBlock block) {
-        Matrix4f transformationMatrix = matrices.peek().getPositionMatrix();
+    private static void renderCube(PoseStack matrices, HighlightedBlock block) {
+        Matrix4f transformationMatrix = matrices.last().pose();
 
         float x0 = block.pos.getX();
         float y0 = block.pos.getY();
@@ -53,42 +54,42 @@ public class Render {
         RenderSystem.defaultBlendFunc();
 
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder buffer = tesselator.begin(VertexFormat.DrawMode.QUADS, VertexFormat.POSITION_COLOR);
+        BufferBuilder buffer = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
 
-        buffer.vertex(transformationMatrix, x0, y0, z1).color(argb);
-        buffer.vertex(transformationMatrix, x0, y1, z1).color(argb);
-        buffer.vertex(transformationMatrix, x1, y1, z1).color(argb);
-        buffer.vertex(transformationMatrix, x1, y0, z1).color(argb);
+        buffer.addVertex(transformationMatrix, x0, y0, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y1, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y1, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y0, z1).setColor(argb);
         
-        buffer.vertex(transformationMatrix, x1, y0, z0).color(argb);
-        buffer.vertex(transformationMatrix, x1, y1, z0).color(argb);
-        buffer.vertex(transformationMatrix, x0, y1, z0).color(argb);
-        buffer.vertex(transformationMatrix, x0, y0, z0).color(argb);
+        buffer.addVertex(transformationMatrix, x1, y0, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y1, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y1, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y0, z0).setColor(argb);
         
-        buffer.vertex(transformationMatrix, x0, y0, z0).color(argb);
-        buffer.vertex(transformationMatrix, x0, y1, z0).color(argb);
-        buffer.vertex(transformationMatrix, x0, y1, z1).color(argb);
-        buffer.vertex(transformationMatrix, x0, y0, z1).color(argb);
+        buffer.addVertex(transformationMatrix, x0, y0, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y1, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y1, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y0, z1).setColor(argb);
         
-        buffer.vertex(transformationMatrix, x1, y0, z1).color(argb);
-        buffer.vertex(transformationMatrix, x1, y1, z1).color(argb);
-        buffer.vertex(transformationMatrix, x1, y1, z0).color(argb);
-        buffer.vertex(transformationMatrix, x1, y0, z0).color(argb);
+        buffer.addVertex(transformationMatrix, x1, y0, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y1, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y1, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y0, z0).setColor(argb);
         
-        buffer.vertex(transformationMatrix, x0, y1, z1).color(argb);
-        buffer.vertex(transformationMatrix, x0, y1, z0).color(argb);
-        buffer.vertex(transformationMatrix, x1, y1, z0).color(argb);
-        buffer.vertex(transformationMatrix, x1, y1, z1).color(argb);
+        buffer.addVertex(transformationMatrix, x0, y1, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y1, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y1, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y1, z1).setColor(argb);
         
-        buffer.vertex(transformationMatrix, x0, y0, z0).color(argb);
-        buffer.vertex(transformationMatrix, x0, y0, z1).color(argb);
-        buffer.vertex(transformationMatrix, x1, y0, z1).color(argb);
-        buffer.vertex(transformationMatrix, x1, y0, z0).color(argb);
+        buffer.addVertex(transformationMatrix, x0, y0, z0).setColor(argb);
+        buffer.addVertex(transformationMatrix, x0, y0, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y0, z1).setColor(argb);
+        buffer.addVertex(transformationMatrix, x1, y0, z0).setColor(argb);
         
 
         RenderSystem.setShader(CoreShaders.POSITION_COLOR);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.8F);
-        BufferUploader.drawWithGlobalProgram(buffer.end());
+        BufferUploader.drawWithShader(buffer.build());
 
         RenderSystem.disableBlend();
     }

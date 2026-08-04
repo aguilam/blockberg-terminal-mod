@@ -9,10 +9,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
-
+import com.aguilam.blockberg_terminal.network.DataPost;;
 public class ProcessStorageScreen {
-    private void processBarrelScreen(AbstractContainerMenu handler) {
+    public static void processBarrelScreen(AbstractContainerMenu handler) {
         Minecraft client = Minecraft.getInstance();
 
         if (!(client.hitResult instanceof BlockHitResult)) {
@@ -47,11 +48,11 @@ public class ProcessStorageScreen {
         int totalSlots = Math.min(27, handler.slots.size());
         for (int i = 0; i < totalSlots; i++) {
             var slot = handler.slots.get(i);
-            ItemStack stack = slot.getStack();
+            ItemStack stack = slot.getItem();
             if (!stack.isEmpty()) {
                 String itemName = stack.getHoverName().getString();
                 if (itemName.isEmpty() || itemName.equals("item.minecraft.air")) {
-                    itemName = stack.getItem().getTranslationKey();
+                    itemName = stack.getItem().getDescriptionId();
                 }
                 if (itemName.isEmpty()) {
                     itemName = "Unknown item";
@@ -68,6 +69,6 @@ public class ProcessStorageScreen {
         jsonObject.addProperty("y", y);
         jsonObject.addProperty("z", z);
 
-        sendBarrelItemsToServer(jsonObject);
+        DataPost.sendBarrelItemsToServer(jsonObject);
     }
 }

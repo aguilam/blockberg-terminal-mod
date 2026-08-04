@@ -14,12 +14,15 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 
-public class Regions {
-    private static final File regionsFile = new File("regions.json");
-    private static final List<Region> regions = new ArrayList<>();
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+import net.minecraft.core.BlockPos;
 
-    private static Region findRegionByName(String regionName) {
+public class RegionsManager {
+    private static final File regionsFile = new File("regions.json");
+    public static final List<Region> regions = new ArrayList<>();
+    public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    public static BlockPos tempMinPos;
+    public static BlockPos tempMaxPos;
+    public static Region findRegionByName(String regionName) {
         for (Region region : regions) {
             if (region.getRegionName().equalsIgnoreCase(regionName)) {
                 return region;
@@ -28,7 +31,7 @@ public class Regions {
         return null;
     }
 
-    private static void saveRegions() {
+    public static void saveRegions() {
         try (FileWriter writer = new FileWriter(regionsFile)) {
             gson.toJson(regions, writer);
         } catch (IOException e) {
@@ -36,7 +39,7 @@ public class Regions {
         }
     }
     
-    private static void loadRegions() {
+    public static void loadRegions() {
         if (regionsFile.exists()) {
             try (FileReader reader = new FileReader(regionsFile)) {
                 Type listType = new TypeToken<List<Region>>() {}.getType();

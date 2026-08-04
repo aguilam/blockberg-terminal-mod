@@ -4,22 +4,26 @@ import com.aguilam.blockberg_terminal.model.Regions.Region;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
+import com.aguilam.blockberg_terminal.region.RegionsManager;
+import com.google.gson.JsonArray;
+import com.aguilam.blockberg_terminal.feature.SignScan;
+import com.aguilam.blockberg_terminal.feature.SendBarrelToServer;
 
 public class Regions {
 
     public static void setMin(){
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
-            tempMinPos = client.player.position();
-            client.player.displayClientMessage(Component.literal("Временная минимальная позиция установлена: " + tempMinPos), false);
+            RegionsManager.tempMinPos = client.player.blockPosition();
+            client.player.displayClientMessage(Component.literal("Временная минимальная позиция установлена: " + RegionsManager.tempMinPos), false);
         }
     }
 
     public static void setMax(){
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
-            tempMaxPos = client.player.position();
-            client.player.displayClientMessage(Component.literal("Временная максимальная позиция установлена: " + tempMaxPos), false);
+            RegionsManager.tempMaxPos = client.player.blockPosition();
+            client.player.displayClientMessage(Component.literal("Временная максимальная позиция установлена: " + RegionsManager.tempMaxPos), false);
         }
     }
 
@@ -27,7 +31,7 @@ public class Regions {
         Minecraft client = Minecraft.getInstance();
         StringBuilder sb = new StringBuilder();
     
-        for (Region region : regions) {
+        for (Region region : RegionsManager.regions) {
             String regionInfo = region.getRegionName() + " | min: " + region.getMinPos().toShortString() 
                                 + ", max: " + region.getMaxPos().toShortString();
             sb.append(regionInfo).append("\n");
@@ -35,16 +39,16 @@ public class Regions {
         client.player.displayClientMessage(Component.literal(sb.toString()), false);
     }
 
-    public static void addRegion() {
+    public static void addRegion(String regionName) {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
-            if (tempMinPos != null && tempMaxPos != null) {
-                Region newRegion = new Region(tempMinPos, tempMaxPos, regionName);
-                regions.add(newRegion);
+            if (RegionsManager.tempMinPos != null && RegionsManager.tempMaxPos != null) {
+                Region newRegion = new Region(RegionsManager.tempMinPos, RegionsManager.tempMaxPos, regionName);
+                RegionsManager.regions.add(newRegion);
                 client.player.displayClientMessage(Component.literal("Регион добавлен: " + newRegion), false);
-                saveRegions();
-                tempMinPos = null;
-                tempMaxPos = null;
+                RegionsManager.saveRegions();
+                RegionsManager.tempMinPos = null;
+                RegionsManager.tempMaxPos = null;
             } else {
                 client.player.displayClientMessage(Component.literal("Сначала установите обе временные позиции с помощью /setmin и /setmax."), false);
             }
@@ -54,9 +58,10 @@ public class Regions {
     public static void regionScan(String regionName) {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
-            Region region = findRegionByName(regionName);
+            Region region = RegionsManager.findRegionByName(regionName);
             if (region != null) {
-                scanSignsInBounds(client, region);
+                JsonArray barrelDataList = SignScan.scanSignsInBounds(client, region);
+                SendBarrelToServer.sendBarrelDataToServer(barrelDataList);
             } else {
                 client.player.displayClientMessage(Component.literal("Регион с именем " + regionName + " не найден."), false);
             }

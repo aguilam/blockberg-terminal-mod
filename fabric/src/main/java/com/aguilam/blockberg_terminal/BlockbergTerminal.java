@@ -11,6 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import com.aguilam.blockberg_terminal.commands.Regions;
+import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.commands.Barrel;
 import com.aguilam.blockberg_terminal.render.Render;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
@@ -18,25 +19,23 @@ import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
-
+import com.aguilam.blockberg_terminal.feature.ProcessStorageScreen;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import net.fabricmc.loader.api.FabricLoader;
+import com.aguilam.blockberg_terminal.region.RegionsManager;
 
 @Environment(EnvType.CLIENT)
 public class BlockbergTerminal implements ClientModInitializer {
-    //private static BlockPos tempMinPos;
-    //private static BlockPos tempMaxPos;
-    
-    //private final List<HighlightedBlock> highlightedBlocks = new ArrayList<>();
-    //private boolean isHighlightingActive = false;
-    //private boolean drawShapeEnabled = false;
 
     private static final AtomicReference<AbstractContainerMenu> delayedHandler = new AtomicReference<>();
     private static final AtomicInteger delayTicks = new AtomicInteger(0);
     @Override
     public void onInitializeClient() {
-        loadRegions();
+        ConfigManager.file = FabricLoader.getInstance().getConfigDir().resolve("blockberg-terminal.json").toFile();
+        RegionsManager.loadRegions();
         ConfigManager.load();
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             if (!ConfigManager.isSendBarrels) return;
@@ -45,8 +44,8 @@ public class BlockbergTerminal implements ClientModInitializer {
                 ContainerScreen containerScreen = (ContainerScreen) screen;
                 String title = containerScreen.getTitle().getString();
                 if (title.contains("Бочка") || title.contains("Barrel")) {
-                    if (client.crosshairTarget instanceof BlockHitResult) {
-                        BlockHitResult hitResult = (BlockHitResult) client.crosshairTarget;
+                    if (client.hitResult instanceof BlockHitResult) {
+                        BlockHitResult hitResult = (BlockHitResult) client.hitResult;
                         BlockPos pos = hitResult.getBlockPos();
                         if (client.level.getBlockState(pos).getBlock() == Blocks.BARREL) {
                             delayedHandler.set(containerScreen.getMenu());
@@ -61,7 +60,7 @@ public class BlockbergTerminal implements ClientModInitializer {
             if (delayTicks.get() > 0) {
                 delayTicks.decrementAndGet();
                 if (delayTicks.get() == 0 && delayedHandler.get() != null) {
-                    processBarrelScreen(delayedHandler.get());
+                    ProcessStorageScreen.processBarrelScreen(delayedHandler.get());
                     delayedHandler.set(null);
                 }
             }
@@ -80,7 +79,7 @@ public class BlockbergTerminal implements ClientModInitializer {
             LiteralArgumentBuilder<FabricClientCommandSource> allRegionsCommand = LiteralArgumentBuilder
             .<FabricClientCommandSource>literal("allregions")
             .executes(context -> {
-                Regions.allRegions();();
+                Regions.allRegions();
                 return 1;
             });
 
@@ -96,7 +95,7 @@ public class BlockbergTerminal implements ClientModInitializer {
                             .then(RequiredArgumentBuilder.<FabricClientCommandSource, String>argument("regionName", StringArgumentType.word())
                                     .executes(context -> {
                                         String regionName = StringArgumentType.getString(context, "regionName");
-                                        Regions.addRegion();
+                                        Regions.addRegion(regionName);
                                         return 1;
                                     }));
 

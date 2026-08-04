@@ -7,14 +7,11 @@
 	"authors": [
 		"Aguilam"
 	],
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/pepe-price/icon.png",
 	"environment": "client",	
 	"entrypoints": {
 		"client": [
-			"com.aguilam.blockberg_terminal.fabric"
-		],
-		"main": [
 			"com.aguilam.blockberg_terminal.BlockbergTerminal"
 		],
 		"modmenu": [
