@@ -46,6 +46,16 @@ public class ModMenuIntegration implements ModMenuApi {
                     .controller(BooleanControllerBuilder::create)
                     .build()
                 )
+                .option(
+                    Option.<Boolean>createBuilder()
+                    .name(Component.literal("Start local server"))
+                    .binding(false,
+                        () -> ConfigManager.isLocalServer,
+                        val -> ConfigManager.isLocalServer = val
+                    )
+                    .controller(BooleanControllerBuilder::create)
+                    .build()
+                )
                 .build()
             )
             .save(() -> ConfigManager.save())

@@ -22,6 +22,8 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
 import com.aguilam.blockberg_terminal.feature.ProcessStorageScreen;
+import com.aguilam.blockberg_terminal.local.LocalServer;
+
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.loader.api.FabricLoader;
@@ -35,6 +37,7 @@ public class BlockbergTerminal implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ConfigManager.file = FabricLoader.getInstance().getConfigDir().resolve("blockberg-terminal.json").toFile();
+        LocalServer.gameDir = FabricLoader.getInstance().getGameDir();
         RegionsManager.loadRegions();
         ConfigManager.load();
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
