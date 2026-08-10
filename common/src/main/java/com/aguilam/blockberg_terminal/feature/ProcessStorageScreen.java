@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -17,7 +16,6 @@ public class ProcessStorageScreen {
         Minecraft client = Minecraft.getInstance();
 
         if (!(client.hitResult instanceof BlockHitResult)) {
-            client.player.displayClientMessage(Component.literal("Нет цели под прицелом."), false);
             return;
         }
         BlockHitResult hitResult = (BlockHitResult) client.hitResult;

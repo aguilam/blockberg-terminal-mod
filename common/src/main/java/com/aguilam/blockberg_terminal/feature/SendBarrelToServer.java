@@ -10,7 +10,7 @@ public class SendBarrelToServer {
         try {    
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
-                client.player.displayClientMessage(Component.literal("Отправляю " + barrelDataList.size() + " записей..."), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.sending_records", barrelDataList.size()), false);
                 DataPost.postBarrelData(barrelDataList);
             }
         } catch (Exception e) {

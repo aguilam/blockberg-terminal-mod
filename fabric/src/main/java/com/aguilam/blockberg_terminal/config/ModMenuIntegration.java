@@ -12,7 +12,7 @@ public class ModMenuIntegration implements ModMenuApi {
         return parentScreen -> YetAnotherConfigLib.createBuilder()
             .title(Component.literal("Blockberg Terminal"))
             .category(ConfigCategory.createBuilder()
-                .name(Component.literal("Settings"))
+                .name(Component.translatable("blockberg_terminal.settings"))
                 .option(
                     Option.<String>createBuilder()
                     .name(Component.literal("API URL"))
@@ -37,7 +37,7 @@ public class ModMenuIntegration implements ModMenuApi {
                 )
                 .option(
                     Option.<Boolean>createBuilder()
-                    .name(Component.literal("Send Barrel Items"))
+                    .name(Component.translatable("blockberg_terminal.send_barrel_items"))
                     .binding(
                         true, 
                         () -> ConfigManager.isSendBarrels,
@@ -48,7 +48,7 @@ public class ModMenuIntegration implements ModMenuApi {
                 )
                 .option(
                     Option.<Boolean>createBuilder()
-                    .name(Component.literal("Start local server"))
+                    .name(Component.translatable("blockberg_terminal.start_local_server"))
                     .binding(false,
                         () -> ConfigManager.isLocalServer,
                         val -> ConfigManager.isLocalServer = val

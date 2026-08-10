@@ -8,7 +8,7 @@
 		"Aguilam"
 	],
 	"license": "MIT",
-	"icon": "assets/pepe-price/icon.png",
+	"icon": "assets/blockberg-terminal/icon.png",
 	"environment": "client",	
 	"entrypoints": {
 		"client": [

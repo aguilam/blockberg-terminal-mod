@@ -15,7 +15,7 @@ public class Regions {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
             RegionsManager.tempMinPos = client.player.blockPosition();
-            client.player.displayClientMessage(Component.literal("Временная минимальная позиция установлена: " + RegionsManager.tempMinPos), false);
+            client.player.displayClientMessage(Component.translatable("blockberg_terminal.temp_min_set" + RegionsManager.tempMinPos), false);
         }
     }
 
@@ -23,7 +23,7 @@ public class Regions {
         Minecraft client = Minecraft.getInstance();
         if (client.player != null) {
             RegionsManager.tempMaxPos = client.player.blockPosition();
-            client.player.displayClientMessage(Component.literal("Временная максимальная позиция установлена: " + RegionsManager.tempMaxPos), false);
+            client.player.displayClientMessage(Component.translatable("blockberg_terminal.temp_max_set" + RegionsManager.tempMaxPos), false);
         }
     }
 
@@ -45,12 +45,12 @@ public class Regions {
             if (RegionsManager.tempMinPos != null && RegionsManager.tempMaxPos != null) {
                 Region newRegion = new Region(RegionsManager.tempMinPos, RegionsManager.tempMaxPos, regionName);
                 RegionsManager.regions.add(newRegion);
-                client.player.displayClientMessage(Component.literal("Регион добавлен: " + newRegion), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.region_added", newRegion), false);
                 RegionsManager.saveRegions();
                 RegionsManager.tempMinPos = null;
                 RegionsManager.tempMaxPos = null;
             } else {
-                client.player.displayClientMessage(Component.literal("Сначала установите обе временные позиции с помощью /setmin и /setmax."), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.positions_required"), false);
             }
         }
     }
@@ -63,7 +63,7 @@ public class Regions {
                 JsonArray barrelDataList = SignScan.scanSignsInBounds(client, region);
                 SendBarrelToServer.sendBarrelDataToServer(barrelDataList);
             } else {
-                client.player.displayClientMessage(Component.literal("Регион с именем " + regionName + " не найден."), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.region_not_found",regionName), false);
             }
         }
     }

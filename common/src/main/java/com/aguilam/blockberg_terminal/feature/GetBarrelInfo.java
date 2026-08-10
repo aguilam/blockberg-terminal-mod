@@ -25,21 +25,21 @@ public class GetBarrelInfo {
                     try {
                         Type type = new TypeToken<BarrelInfo>(){}.getType();
                         BarrelInfo info = GSON.fromJson(response.body(), type);
-                        MutableComponent fullContentMessage = Component.literal("Полное содержимое бочки:\n").withStyle(ChatFormatting.GRAY)
-                                .append(Component.literal("Название: ").withStyle(ChatFormatting.WHITE)
+                        MutableComponent fullContentMessage = Component.translatable("blockberg_terminal.barrel_full_content").withStyle(ChatFormatting.GRAY)
+                                .append(Component.translatable("blockberg_terminal.barrel_name").withStyle(ChatFormatting.WHITE)
                                     .append(Component.literal(info.name).withStyle(ChatFormatting.GOLD)))
-                                .append(Component.literal("\nПродавец: ").withStyle(ChatFormatting.WHITE)
+                                .append(Component.translatable("blockberg_terminal.barrel_seller").withStyle(ChatFormatting.WHITE)
                                     .append(Component.literal(info.seller).withStyle(ChatFormatting.AQUA)))
-                                .append(Component.literal("\nЦена: ").withStyle(ChatFormatting.WHITE)
+                                .append(Component.translatable("blockberg_terminal.barrel_price").withStyle(ChatFormatting.WHITE)
                                     .append(Component.literal(String.format("%d", info.price)).withStyle(ChatFormatting.YELLOW)))
-                                .append(Component.literal("\nКоличество: ").withStyle(ChatFormatting.WHITE)
+                                .append(Component.translatable("blockberg_terminal.barrel_quantity").withStyle(ChatFormatting.WHITE)
                                     .append(Component.literal(String.valueOf(info.quantity)).withStyle(ChatFormatting.GREEN)))
-                                .append(Component.literal("\nКоординаты: ").withStyle(ChatFormatting.WHITE)
+                                .append(Component.translatable("blockberg_terminal.barrel_coordinates").withStyle(ChatFormatting.WHITE)
                                     .append(Component.literal(String.format("(%d, %d, %d)", info.x, info.y, info.z)).withStyle(ChatFormatting.LIGHT_PURPLE)))
                                 .append(Component.literal("\n"));
                             
                             if (info.barrelItems != null) {
-                                fullContentMessage = fullContentMessage.append(Component.literal("\nСодержимоe:").withStyle(ChatFormatting.WHITE));
+                                fullContentMessage = fullContentMessage.append(Component.translatable("blockberg_terminal.barrel_contents").withStyle(ChatFormatting.WHITE));
                                 for (BarrelItem item : info.barrelItems.items) {
                                     MutableComponent itemText = Component.literal("\n- ").withStyle(ChatFormatting.GRAY)
                                         .append(item.name).withStyle(ChatFormatting.GOLD)
@@ -55,12 +55,12 @@ public class GetBarrelInfo {
                                     Date parsedDate = isoFormat.parse(info.barrelItems.recordDate);
                                     String formattedDate = sdf.format(parsedDate); 
                                 
-                                    fullContentMessage = fullContentMessage.append(Component.literal(" (от " + formattedDate + ")").withStyle(ChatFormatting.DARK_GRAY));
+                                    fullContentMessage = fullContentMessage.append(Component.translatable("blockberg_terminal.barrel_recorded_date",formattedDate).withStyle(ChatFormatting.DARK_GRAY));
                                 } catch (ParseException e) {
                                     e.printStackTrace();
                                 }
                             } else {
-                                fullContentMessage = fullContentMessage.append(Component.literal("\nСодержимое в бочке не известно").withStyle(ChatFormatting.RED));
+                                fullContentMessage = fullContentMessage.append(Component.translatable("blockberg_terminal.barrel_contents_unknown").withStyle(ChatFormatting.RED));
                             }
                             client.player.displayClientMessage(fullContentMessage, false);
                     } catch (Exception e) {

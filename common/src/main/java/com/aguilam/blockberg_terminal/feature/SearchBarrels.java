@@ -5,13 +5,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import net.minecraft.ChatFormatting;
-import net.minecraft.client.Minecraft;
-import net.minecraft.core.BlockPos;
-import net.minecraft.network.chat.ClickEvent;
-import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.MutableComponent;
-
 import com.aguilam.blockberg_terminal.model.Barrel.BarrelSearchBody;
 import com.aguilam.blockberg_terminal.model.Barrel.BarrelSearchItem;
 import com.aguilam.blockberg_terminal.network.DataPost;
@@ -19,12 +12,19 @@ import com.aguilam.blockberg_terminal.render.HighlightedBlocks;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
+
+import net.minecraft.ChatFormatting;
+import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.ClickEvent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 public class SearchBarrels {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     public static void searchBarrels(Minecraft client, String searchTerm, int page) {
         try {
-            client.player.displayClientMessage(Component.literal("§a[BarrelSearch] §fПоиск по запросу: §e" + searchTerm + " §f(Страница " + page + ")..."), false);
+            client.player.displayClientMessage(Component.translatable("blockberg_terminal.search_started",searchTerm,page), false);
 
             DataPost.searchBarrels(searchTerm, page).thenAccept(response -> {
                 Type listType = new TypeToken<BarrelSearchBody>(){}.getType();
@@ -39,7 +39,7 @@ public class SearchBarrels {
                     ChatFormatting.DARK_RED
                 };
 
-                client.player.displayClientMessage(Component.literal("§a[BarrelSearch] §fНайдено " + offers.total + "" + " предложений (Страница " + offers.page + "):"), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.search_results",offers.total,offers.page), false);
                 for (int i = 0; i < offers.barrels.length; i++) {
                     BarrelSearchItem offer = offers.barrels[i];
                     ChatFormatting rankColor = rankColors[i % rankColors.length];
@@ -47,9 +47,9 @@ public class SearchBarrels {
                             .withStyle(style -> style.withColor(rankColor.getColor()))
                             .append(Component.literal(offer.name)
                             .withStyle(style -> style.withColor(rankColor.getColor())))
-                            .append(Component.literal(" §7| Продавец: §6" + offer.seller))
-                            .append(Component.literal(" §7| Цена: §e" + offer.price))
-                            .append(Component.literal(" §7| Кол-во: §b" + offer.quantity))
+                            .append(Component.translatable("blockberg_terminal.search_seller", offer.seller))
+                            .append(Component.translatable("blockberg_terminal.search_price", offer.price))
+                            .append(Component.translatable("blockberg_terminal.search_quantity", offer.quantity))
                             .append(Component.literal(" §7| XYZ: §5" + String.format("(%d, %d, %d)", offer.x, offer.y, offer.z)));
                     try {
                         SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
@@ -59,13 +59,13 @@ public class SearchBarrels {
                         Date parsedDate = isoFormat.parse(offer.recordDate);
                         String formattedDate = sdf.format(parsedDate); 
                     
-                        formattedMessage = formattedMessage.append(Component.literal(" §7| Recorded: §9" + formattedDate));
+                        formattedMessage = formattedMessage.append(Component.translatable("blockberg_terminal.search_recorded", formattedDate));
                     } catch (ParseException e) {
                         e.printStackTrace();
                     }
                     client.player.displayClientMessage(formattedMessage, false);
                     if (offer.snapshotsCount > 0) {
-                        client.player.displayClientMessage(Component.literal("[Посмотреть содержимое бочки]")
+                        client.player.displayClientMessage(Component.translatable("blockberg_terminal.view_barrel_contents")
                             .withStyle(style -> style.withColor(0x00AAFF)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                 "/showbarrelcontent " + offer.id))), false);
@@ -96,7 +96,7 @@ public class SearchBarrels {
                 MutableComponent paginationText = Component.literal("");
                 if (offers.page > 1) {
                     paginationText = paginationText.append(
-                        Component.literal("[Предыдущая страница]")
+                        Component.translatable("blockberg_terminal.previous_page")
                             .withStyle(style -> style.withColor(ChatFormatting.AQUA.getColor())
                                 .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                     "/searchbarrel " + (offers.page - 1) + " " + searchTerm)))
@@ -106,7 +106,7 @@ public class SearchBarrels {
                 if (totalPages > offers.page) {
                     paginationText = paginationText.append(Component.literal(" "));
                     paginationText = paginationText.append(
-                            Component.literal("[Следующая страница]")
+                            Component.translatable("blockberg_terminal.next_page")
                                 .withStyle(style -> style.withColor(ChatFormatting.AQUA.getColor())
                                     .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
                                         "/searchbarrel " + (offers.page + 1) + " " + searchTerm)))
@@ -116,7 +116,7 @@ public class SearchBarrels {
             });
         }
         catch (Exception e) {
-            client.player.displayClientMessage(Component.literal("§cОшибка: " + e.getMessage()), false);
+            client.player.displayClientMessage(Component.translatable("blockberg_terminal.error", e.getMessage()), false);
             e.printStackTrace();
         }
     }
