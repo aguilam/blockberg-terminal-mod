@@ -1,5 +1,4 @@
 package com.aguilam.blockberg_terminal.render;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderContext;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.CoreShaders;
@@ -10,16 +9,16 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
-import com.aguilam.blockberg_terminal.render.HighlightedBlocks.*;
+import com.aguilam.blockberg_terminal.render.HighlightedBlocks.HighlightedBlock;
 import com.mojang.blaze3d.vertex.VertexFormat;
-public class Render {
-    public static void renderHighlightedBlocks(WorldRenderContext context) {
+
+public class RenderBlocks {
+    public static void renderHighlightedBlocks(PoseStack matrices) {
         if (!HighlightedBlocks.drawShapeEnabled || HighlightedBlocks.blocks.isEmpty()) return;
         Minecraft client = Minecraft.getInstance();
         if (client.player == null || client.level == null) return;
 
         Camera camera = client.gameRenderer.getMainCamera();
-        PoseStack matrices = context.matrixStack();
         matrices.pushPose();
         matrices.translate(-camera.getPosition().x, -camera.getPosition().y, -camera.getPosition().z);
 

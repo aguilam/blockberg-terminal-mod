@@ -13,7 +13,7 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import com.aguilam.blockberg_terminal.commands.Regions;
 import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.commands.Barrel;
-import com.aguilam.blockberg_terminal.render.Render;
+import com.aguilam.blockberg_terminal.render.RenderBlocks;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.minecraft.client.gui.screens.inventory.ContainerScreen;
@@ -152,6 +152,8 @@ public class BlockbergTerminal implements ClientModInitializer {
             dispatcher.register(allRegionsCommand);
         });
 
-        WorldRenderEvents.LAST.register(Render::renderHighlightedBlocks);
+        WorldRenderEvents.LAST.register(context -> {
+            RenderBlocks.renderHighlightedBlocks(context.matrixStack());
+        });    
     }
 }
