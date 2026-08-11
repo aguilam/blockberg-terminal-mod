@@ -25,7 +25,19 @@
     "blockberg_terminal.search_price": " §7| Цена: §e%d",
     "blockberg_terminal.search_quantity": " §7| Кол-во: §b%d",
     "blockberg_terminal.search_recorded": " §7| Записано: §9%s",
-    "blockberg_terminal.settings": "Настройки",
+    "blockberg_terminal.settings": "Настройки Клиента",
+    "blockberg_terminal.client_settings": "Настройки Клиента",
     "blockberg_terminal.send_barrel_items": "Отправлять содержимое бочек",
-    "blockberg_terminal.start_local_server": "Запустить локальный сервер"
-  }
+    "blockberg_terminal.start_local_server": "Запустить локальный сервер",
+    "blockberg_terminal.server_settings": "Настройки Сервера",
+    "blockberg_terminal.server_api_key": "Api ключ сервера",
+    "blockberg_terminal.ai_url": "URL AI поставщика",
+    "blockberg_terminal.ai_key": "API ключ AI поставщика",
+    "blockberg_terminal.ai_model": "AI модель",
+    "blockberg_terminal.min_x": "Минимальная точка X",
+    "blockberg_terminal.max_x": "Максимальная точка X",
+    "blockberg_terminal.min_y": "Минимальная точка Y",
+    "blockberg_terminal.max_y": "Максимальная точка Y",
+    "blockberg_terminal.min_z": "Минимальная точка Z",
+    "blockberg_terminal.max_z": "Максимальная точка Z"
+}

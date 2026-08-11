@@ -25,7 +25,19 @@
     "blockberg_terminal.search_price": " §7| Price: §e%d",
     "blockberg_terminal.search_quantity": " §7| Qty: §b%d",
     "blockberg_terminal.search_recorded": " §7| Recorded: §9%s",
+    "blockberg_terminal.client_settings": "Client Settings",
     "blockberg_terminal.settings": "Settings",
     "blockberg_terminal.send_barrel_items": "Send Barrel Items",
-    "blockberg_terminal.start_local_server": "Start local server"
+    "blockberg_terminal.start_local_server": "Start local server",
+    "blockberg_terminal.server_settings": "Server Settings",
+    "blockberg_terminal.server_api_key": "Server API Key",
+    "blockberg_terminal.ai_url": "AI Provider URL",
+    "blockberg_terminal.ai_key": "AI Provider API Key",
+    "blockberg_terminal.ai_model": "AI Model",
+    "blockberg_terminal.min_x": "Minimum X Point",
+    "blockberg_terminal.max_x": "Maximum X Point",
+    "blockberg_terminal.min_y": "Minimum Y Point",
+    "blockberg_terminal.max_y": "Maximum Y Point",
+    "blockberg_terminal.min_z": "Minimum Z Point",
+    "blockberg_terminal.max_z": "Maximum Z Point"
 }

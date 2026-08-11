@@ -4,11 +4,15 @@ import java.io.File;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
 
+import com.aguilam.blockberg_terminal.config.ConfigManager.ConfigData;
+import com.aguilam.blockberg_terminal.local.utils;
 public class LocalServer {
     private static Process serverProcess;
     public static Path gameDir;
-    public static void startLocalServer(String args) {
+    public static void startLocalServer(ConfigData args) {
         if (serverProcess != null && serverProcess.isAlive()) {
             return;
         }
@@ -31,9 +35,12 @@ public class LocalServer {
                     Files.copy(is, targetExe.toPath());
                 }
             }
-
             targetExe.setExecutable(true);
-            ProcessBuilder pb = new ProcessBuilder(targetExe.getAbsolutePath(),args);
+            List<String> stringArgs = utils.buildArgs(args);
+            List<String> command = new ArrayList<>();
+            command.add(targetExe.getAbsolutePath());
+            command.addAll(stringArgs);
+            ProcessBuilder pb = new ProcessBuilder(command);
             pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
             pb.redirectError(ProcessBuilder.Redirect.INHERIT);
 
