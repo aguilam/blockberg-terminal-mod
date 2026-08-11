@@ -5,6 +5,7 @@ import com.aguilam.blockberg_terminal.model.Regions.Region;
 import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import com.aguilam.blockberg_terminal.region.RegionsManager;
+import com.aguilam.blockberg_terminal.render.HighlightedBlocks;
 import com.google.gson.JsonArray;
 import com.aguilam.blockberg_terminal.feature.SignScan;
 import com.aguilam.blockberg_terminal.feature.SendBarrelToServer;
@@ -66,6 +67,10 @@ public class Regions {
                 client.player.displayClientMessage(Component.translatable("blockberg_terminal.region_not_found",regionName), false);
             }
         }
+    }
+
+    public static void clearHighlighted() {
+        HighlightedBlocks.clearBlocks();
     }
 
 }

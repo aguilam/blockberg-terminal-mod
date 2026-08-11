@@ -5,13 +5,51 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.gui.screens.inventory.ContainerScreen;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
+
+import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.network.DataPost;;
 public class ProcessStorageScreen {
+    private static AbstractContainerMenu delayedHandler = null;
+    private static int delayTicks = 0;
+
+    public static void checkStorageScreen(Screen screen, Minecraft client) {
+        if (!ConfigManager.isSendBarrels) return;
+
+        if (screen instanceof ContainerScreen) {
+            ContainerScreen containerScreen = (ContainerScreen) screen;
+            Component title = containerScreen.getTitle();
+            if (title.getContents() instanceof TranslatableContents translatable && "container.barrel".equals(translatable.getKey())) {
+                if (client.hitResult instanceof BlockHitResult) {
+                    BlockHitResult hitResult = (BlockHitResult) client.hitResult;
+                    BlockPos pos = hitResult.getBlockPos();
+                    if (client.level.getBlockState(pos).getBlock() == Blocks.BARREL) {
+                        delayedHandler = containerScreen.getMenu();
+                        delayTicks = 4; 
+                    }
+                }
+            }
+        }
+    }
+
+    public static void checkStorageTick() {
+        if (delayTicks > 0) {
+            delayTicks--;
+            if (delayTicks == 0 && delayedHandler != null) {
+                ProcessStorageScreen.processBarrelScreen(delayedHandler);
+                delayedHandler = null;
+            }
+        }
+    }
+    
     public static void processBarrelScreen(AbstractContainerMenu handler) {
         Minecraft client = Minecraft.getInstance();
 

@@ -16,24 +16,15 @@ import com.aguilam.blockberg_terminal.commands.Barrel;
 import com.aguilam.blockberg_terminal.render.RenderBlocks;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.minecraft.client.gui.screens.inventory.ContainerScreen;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.phys.BlockHitResult;
 import com.aguilam.blockberg_terminal.feature.ProcessStorageScreen;
 import com.aguilam.blockberg_terminal.local.LocalServer;
 
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import net.fabricmc.loader.api.FabricLoader;
 import com.aguilam.blockberg_terminal.region.RegionsManager;
 
 @Environment(EnvType.CLIENT)
 public class BlockbergTerminal implements ClientModInitializer {
 
-    private static final AtomicReference<AbstractContainerMenu> delayedHandler = new AtomicReference<>();
-    private static final AtomicInteger delayTicks = new AtomicInteger(0);
     @Override
     public void onInitializeClient() {
         ConfigManager.file = FabricLoader.getInstance().getConfigDir().resolve("blockberg-terminal.json").toFile();
@@ -41,35 +32,12 @@ public class BlockbergTerminal implements ClientModInitializer {
         RegionsManager.loadRegions();
         ConfigManager.load();
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
-            if (!ConfigManager.isSendBarrels) return;
-
-            if (screen instanceof ContainerScreen) {
-                ContainerScreen containerScreen = (ContainerScreen) screen;
-                String title = containerScreen.getTitle().getString();
-                if (title.contains("Бочка") || title.contains("Barrel")) {
-                    if (client.hitResult instanceof BlockHitResult) {
-                        BlockHitResult hitResult = (BlockHitResult) client.hitResult;
-                        BlockPos pos = hitResult.getBlockPos();
-                        if (client.level.getBlockState(pos).getBlock() == Blocks.BARREL) {
-                            delayedHandler.set(containerScreen.getMenu());
-                            delayTicks.set(4); 
-                        }
-                    }
-                }
-            }
+            ProcessStorageScreen.checkStorageScreen(screen, client);
         });
 
         ClientTickEvents.END_CLIENT_TICK.register(client -> {
-            if (delayTicks.get() > 0) {
-                delayTicks.decrementAndGet();
-                if (delayTicks.get() == 0 && delayedHandler.get() != null) {
-                    ProcessStorageScreen.processBarrelScreen(delayedHandler.get());
-                    delayedHandler.set(null);
-                }
-            }
+            ProcessStorageScreen.checkStorageTick();
         });
-        
-
         
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             LiteralArgumentBuilder<FabricClientCommandSource> setMinCommand = LiteralArgumentBuilder
@@ -141,7 +109,13 @@ public class BlockbergTerminal implements ClientModInitializer {
                             return 1;
                         })
                     );
-        
+            
+            LiteralArgumentBuilder<FabricClientCommandSource> clearBlocksHighlighted =
+                    LiteralArgumentBuilder.<FabricClientCommandSource>literal("clearhl")
+                        .executes(context -> {
+                            Regions.clearHighlighted();
+                            return 1;
+                        });
 
             dispatcher.register(setMinCommand);
             dispatcher.register(setMaxCommand);
@@ -150,6 +124,7 @@ public class BlockbergTerminal implements ClientModInitializer {
             dispatcher.register(searchBarrelCommand);
             dispatcher.register(showBarrelContentCommand);
             dispatcher.register(allRegionsCommand);
+            dispatcher.register(clearBlocksHighlighted);
         });
 
         WorldRenderEvents.LAST.register(context -> {

@@ -15,5 +15,4 @@ public class Barrel {
         HighlightedBlocks.clearBlocks();
         SearchBarrels.searchBarrels(Minecraft.getInstance(), query, page);
     }
-
 }
