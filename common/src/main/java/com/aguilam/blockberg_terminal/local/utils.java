@@ -10,7 +10,6 @@ public class utils {
         List<String> args = new ArrayList<>();
 
         addArg(args, "serverApiKey", data.serverApiKey);
-        addArg(args, "isLocalServer", data.isLocalServer);
         addArg(args, "aiUrl", data.aiUrl);
         addArg(args, "aiKey", data.aiKey);
         addArg(args, "aiModel", data.aiModel);

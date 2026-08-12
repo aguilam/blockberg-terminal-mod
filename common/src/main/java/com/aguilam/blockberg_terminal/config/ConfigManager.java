@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.concurrent.CompletableFuture;
+
 import com.aguilam.blockberg_terminal.local.LocalServer;
 public class ConfigManager {
     public static File file;
@@ -51,7 +53,12 @@ public class ConfigManager {
                 minZ = data.minZ;
                 maxZ = data.maxZ;
                 if (isLocalServer) {
-                    LocalServer.startLocalServer(data);
+                    CompletableFuture.supplyAsync(() -> LocalServer.startLocalServer(data)).thenAccept(url -> {
+                        apiUrl = url;
+                    }).exceptionally(e -> {
+                        e.printStackTrace();
+                        return null;
+                    });
                 }
             }
         } catch (Exception e) {
@@ -70,12 +77,18 @@ public class ConfigManager {
                 aiUrl, aiKey, aiModel,
                 minX, maxX, minY, maxY, minZ, maxZ
             );
-            GSON.toJson(data, writer);
             if (isLocalServer) {
-                LocalServer.startLocalServer(data);
+                CompletableFuture.supplyAsync(() -> LocalServer.startLocalServer(data)).thenAccept(url -> {
+                    data.apiUrl = url;
+                    apiUrl = url;
+                }).exceptionally(e -> {
+                    e.printStackTrace();
+                    return null;
+                });
             } else {
                 LocalServer.stopLocalServer();
             }
+            GSON.toJson(data, writer);
         } catch (Exception e) {
             System.err.println("[BlockbergTerminal] Cannot save config");
             e.printStackTrace();

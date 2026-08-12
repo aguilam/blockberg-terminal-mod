@@ -1,20 +1,27 @@
 package com.aguilam.blockberg_terminal.local;
 
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 import com.aguilam.blockberg_terminal.config.ConfigManager.ConfigData;
 import com.aguilam.blockberg_terminal.local.utils;
+
 public class LocalServer {
     private static Process serverProcess;
     public static Path gameDir;
-    public static void startLocalServer(ConfigData args) {
+    private static String ServerURL;
+
+    public static String startLocalServer(ConfigData args) {
         if (serverProcess != null && serverProcess.isAlive()) {
-            return;
+            return ServerURL;
         }
         try {
             String os = System.getProperty("os.name").toLowerCase();
@@ -22,7 +29,7 @@ public class LocalServer {
             if (os.contains("win")) {
                 binaryName = "server-windows-amd64.exe";
             } else {
-                return;
+                throw new UnsupportedOperationException("Not supported os: " + os);
             }
 
             Path binDir = gameDir.resolve("blockberg-terminal").resolve("bin");
@@ -32,6 +39,9 @@ public class LocalServer {
                 String resourcePath = "/assets/blockberg-terminal/bin/" + binaryName;
 
                 try(InputStream is = LocalServer.class.getResourceAsStream(resourcePath)) {
+                    if (is == null) {
+                        throw new FileNotFoundException("Resource not found: " + resourcePath);
+                    }
                     Files.copy(is, targetExe.toPath());
                 }
             }
@@ -41,18 +51,32 @@ public class LocalServer {
             command.add(targetExe.getAbsolutePath());
             command.addAll(stringArgs);
             ProcessBuilder pb = new ProcessBuilder(command);
-            pb.redirectOutput(ProcessBuilder.Redirect.INHERIT);
-            pb.redirectError(ProcessBuilder.Redirect.INHERIT);
-
+            pb.redirectErrorStream(true);
             serverProcess = pb.start();
-            System.out.println("Local server started");
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 if (serverProcess != null && serverProcess.isAlive()) {
                     serverProcess.destroy();
                 }
             }));
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(serverProcess.getInputStream()))) {
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println("[Go Server Startup] " + line);
+                    if (line.startsWith("SERVER_READY:")) {
+                        String serverAddress = line.substring("SERVER_READY:".length()).trim();
+                        
+                        CompletableFuture.runAsync(() -> 
+                            reader.lines().forEach(serLine -> System.out.println("[Go Server] " + serLine))
+                        );
+                        ServerURL = "http://" + serverAddress;
+                        return ServerURL;
+                    }
+                }
+            }
+            System.out.println("Local server started");
+            throw new IllegalStateException("Error while server start");
         } catch (Exception e) {
-            e.printStackTrace();
+            throw new RuntimeException("Failed to start local server", e);
         }
     }
     public static void stopLocalServer() {
