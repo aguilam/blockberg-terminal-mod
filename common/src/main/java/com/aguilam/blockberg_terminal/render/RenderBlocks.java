@@ -1,7 +1,8 @@
 package com.aguilam.blockberg_terminal.render;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.CoreShaders;
+import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.client.renderer.ShaderInstance;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -85,7 +86,7 @@ public class RenderBlocks {
         buffer.addVertex(transformationMatrix, x1, y0, z0).setColor(argb);
         
 
-        RenderSystem.setShader(CoreShaders.POSITION_COLOR);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.8F);
         BufferUploader.drawWithShader(buffer.build());
 
