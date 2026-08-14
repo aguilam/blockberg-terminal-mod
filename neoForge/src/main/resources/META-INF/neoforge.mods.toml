@@ -1,0 +1,31 @@
+modLoader = "javafml"
+loaderVersion = "[4,)"
+issueTrackerURL = ""
+license = "MIT"
+
+[[mods]]
+modId = "blockberg-terminal"
+version = "${version}"
+displayName = "Blockberg Terminal"
+authors = "Aguilam"
+description = '''
+Этот мод позволяет искать и фильтровать товары по всему ТЗ ППЛ
+'''
+logoFile = "assets/blockberg-terminal/icon.png"
+
+[[dependencies.blockberg-terminal]]
+modId = "neoforge"
+type = "required"
+versionRange = "[21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.blockberg-terminal]]
+modId = "minecraft"
+type = "required"
+versionRange = "[1.21.1,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[mixins]]
+config = "example_mod.mixins.json"

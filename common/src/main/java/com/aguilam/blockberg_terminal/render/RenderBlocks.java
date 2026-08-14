@@ -2,7 +2,6 @@ package com.aguilam.blockberg_terminal.render;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.ShaderInstance;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
