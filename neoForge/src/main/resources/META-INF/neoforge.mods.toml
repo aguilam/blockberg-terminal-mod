@@ -4,13 +4,14 @@ issueTrackerURL = ""
 license = "MIT"
 
 [[mods]]
-modId = "blockberg-terminal"
+modId = "blockberg_terminal"
 version = "${version}"
 displayName = "Blockberg Terminal"
 authors = "Aguilam"
 description = '''
 Этот мод позволяет искать и фильтровать товары по всему ТЗ ППЛ
 '''
+displayTest="IGNORE_SERVER_VERSION"
 logoFile = "assets/blockberg-terminal/icon.png"
 
 [[dependencies.blockberg-terminal]]
@@ -26,6 +27,3 @@ type = "required"
 versionRange = "[1.21.1,)"
 ordering = "NONE"
 side = "BOTH"
-
-[[mixins]]
-config = "example_mod.mixins.json"
