@@ -37,6 +37,7 @@ public class BlockbergTerminal implements ClientModInitializer {
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
             dispatcher.register(Barrel.searchBarrels());
             dispatcher.register(Barrel.showBarrelContent());
+            dispatcher.register(Barrel.searchSnapshot());
             dispatcher.register(Regions.setMin());
             dispatcher.register(Regions.setMax());
             dispatcher.register(Regions.addRegion());

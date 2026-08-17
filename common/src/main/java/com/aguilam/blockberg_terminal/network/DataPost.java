@@ -58,4 +58,15 @@ public class DataPost {
 
         return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
     }
+
+    public static CompletableFuture<HttpResponse<String>> searchSnapshots(String itemName, int page) {
+        HttpClient httpClient = HttpClient.newHttpClient();
+        String encodedName = URLEncoder.encode(itemName, StandardCharsets.UTF_8);
+        String requestUrl = ConfigManager.apiUrl + "/snapshots" + "?query=" + encodedName + "&page=" + page + "&page_size=10";
+        HttpRequest request = HttpRequest.newBuilder()
+            .uri(URI.create(requestUrl))
+            .GET()
+            .build();
+        return httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofString());
+    }
 }

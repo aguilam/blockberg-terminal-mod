@@ -21,7 +21,7 @@ public class Regions {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
                 RegionsManager.tempMinPos = client.player.blockPosition();
-                client.player.displayClientMessage(Component.translatable("blockberg_terminal.temp_min_set" + RegionsManager.tempMinPos), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.temp_min_set", RegionsManager.tempMinPos), false);
             }
             return 1;
         });
@@ -34,7 +34,7 @@ public class Regions {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
                 RegionsManager.tempMaxPos = client.player.blockPosition();
-                client.player.displayClientMessage(Component.translatable("blockberg_terminal.temp_max_set" + RegionsManager.tempMaxPos), false);
+                client.player.displayClientMessage(Component.translatable("blockberg_terminal.temp_max_set", RegionsManager.tempMaxPos), false);
             }
             return 1;
         });
@@ -103,6 +103,7 @@ public class Regions {
         return LiteralArgumentBuilder.<S>literal("clearhl")
         .executes(context -> {
             HighlightedBlocks.clearBlocks();
+            HighlightedBlocks.drawShapeEnabled = false;
             return 1;
         }); 
     }

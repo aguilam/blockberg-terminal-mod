@@ -1,6 +1,23 @@
 package com.aguilam.blockberg_terminal.model;
 
 public class Barrel {
+
+    public static class SnapshotsSearchItem {
+        public int id;
+        public int x;
+        public int y;
+        public int z;
+        public BarrelItem[] items;
+        public String recordDate;
+    }
+    
+    public static class SnapshotsSearchBody {
+        public int total;
+        public int page;
+        public int limit;
+        public SnapshotsSearchItem[] items;
+    }
+
     public static class BarrelSearchBody {
         public int total;
         public int page;

@@ -7,6 +7,7 @@ import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import com.mojang.brigadier.builder.RequiredArgumentBuilder;
 import com.aguilam.blockberg_terminal.feature.GetBarrelInfo;
 import com.aguilam.blockberg_terminal.feature.SearchBarrels;
+import com.aguilam.blockberg_terminal.feature.SearchSnapshots;
 
 import net.minecraft.client.Minecraft;
 public class Barrel {
@@ -40,6 +41,26 @@ public class Barrel {
                 String searchTerm = StringArgumentType.getString(context, "Название товара");
                 HighlightedBlocks.clearBlocks();
                 SearchBarrels.searchBarrels(Minecraft.getInstance(), searchTerm, 1);
+                return 1;
+            })
+        );
+    }
+
+    public static <S> LiteralArgumentBuilder<S> searchSnapshot() {
+        return LiteralArgumentBuilder.<S>literal("searchitems")
+        .then(RequiredArgumentBuilder.<S,Integer>argument("Page", IntegerArgumentType.integer(1))
+            .then(RequiredArgumentBuilder.<S,String>argument("Item name", StringArgumentType.greedyString()))
+                .executes(context -> {
+                  String itemName = StringArgumentType.getString(context, "Page");
+                  int page = IntegerArgumentType.getInteger(context, "Item name");
+                  SearchSnapshots.SearchBySnapshots(Minecraft.getInstance(), itemName, page);
+                  return 1;
+                })
+        )
+        .then(RequiredArgumentBuilder.<S,String>argument("Item name", StringArgumentType.greedyString())
+            .executes(content -> {
+                String itemName = StringArgumentType.getString(content, "Item name");
+                SearchSnapshots.SearchBySnapshots(Minecraft.getInstance(), itemName, 1);
                 return 1;
             })
         );

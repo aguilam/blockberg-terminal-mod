@@ -37,6 +37,7 @@ public class BlockbergTerminalClient {
             var dispatcher = event.getDispatcher();
             dispatcher.register(Barrel.searchBarrels());
             dispatcher.register(Barrel.showBarrelContent());
+            dispatcher.register(Barrel.searchSnapshot());
             dispatcher.register(Regions.setMin());
             dispatcher.register(Regions.setMax());
             dispatcher.register(Regions.addRegion());

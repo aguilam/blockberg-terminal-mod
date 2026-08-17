@@ -39,5 +39,7 @@
     "blockberg_terminal.min_y": "Минимальная точка Y",
     "blockberg_terminal.max_y": "Максимальная точка Y",
     "blockberg_terminal.min_z": "Минимальная точка Z",
-    "blockberg_terminal.max_z": "Максимальная точка Z"
+    "blockberg_terminal.max_z": "Максимальная точка Z",
+    "blockberg_terminal.snapshot_info": "\nБочка - X: %d Y: %d Z: %d",
+    "blockberg_terminal.snapshot_search_results": "§a[SnapshotSearch] §fНайдено элементов: %d (Страница %d):"
 }
