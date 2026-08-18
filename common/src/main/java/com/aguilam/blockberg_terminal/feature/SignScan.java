@@ -7,10 +7,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.state.BlockState;
 
 public class SignScan {
     public static JsonArray scanSignsInBounds(Minecraft client, Region region) {
@@ -31,11 +33,11 @@ public class SignScan {
                 for (int z = startZ; z <= endZ; z++) {
                     BlockPos blockPos = new BlockPos(x, y, z);
                     BlockEntity blockEntity = world.getBlockEntity(blockPos);
-                    if (blockEntity instanceof SignBlockEntity sign) {
-                        if (sign.getBlockState().getBlock() instanceof WallSignBlock) {
-                            Direction signFacing = sign.getBlockState().getValue(WallSignBlock.FACING);
-                            BlockPos attachedBlockPos = blockPos.relative(signFacing.getOpposite());
-                            
+                    if (blockEntity instanceof SignBlockEntity sign && sign.getBlockState().getBlock() instanceof WallSignBlock) {
+                        Direction signFacing = sign.getBlockState().getValue(WallSignBlock.FACING);
+                        BlockPos attachedBlockPos = blockPos.relative(signFacing.getOpposite());
+                        BlockState storage = world.getBlockState(attachedBlockPos);
+                        if(storage.getBlock() instanceof BarrelBlock) {
                             StringBuilder signText = new StringBuilder();
                             SignText signContent = sign.getText(true);
                             for (int i = 0; i < 4; i++) {
