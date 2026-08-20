@@ -11,12 +11,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
+import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.config.ConfigManager.ConfigData;
 import com.aguilam.blockberg_terminal.local.utils;
 
 public class LocalServer {
     private static Process serverProcess;
-    public static Path gameDir;
     private static String ServerURL;
 
     public static String startLocalServer(ConfigData args) {
@@ -32,7 +32,7 @@ public class LocalServer {
                 throw new UnsupportedOperationException("Not supported os: " + os);
             }
 
-            Path binDir = gameDir.resolve("blockberg-terminal").resolve("bin");
+            Path binDir = ConfigManager.gameDir.resolve("bin");
             Files.createDirectories(binDir);
             File targetExe = new File(binDir.toFile(), binaryName);
             if (!Files.exists(targetExe.toPath())) {

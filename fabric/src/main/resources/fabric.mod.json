@@ -3,13 +3,13 @@
 	"id": "blockberg-terminal",
 	"version": "${version}",
 	"name": "Blockberg Terminal",
-	"description": "Этот мод позволяет искать и фильтровать товары по всему ТЗ ППЛ",
+	"description": "This mod allows to save barrel items in your trade zone and search by them to find best offer",
 	"authors": [
 		"Aguilam"
 	],
 	"license": "MIT",
 	"icon": "assets/blockberg-terminal/icon.png",
-	"environment": "client",	
+	"environment": "client",
 	"entrypoints": {
 		"client": [
 			"com.aguilam.blockberg_terminal.BlockbergTerminal"
@@ -18,15 +18,19 @@
 			"com.aguilam.blockberg_terminal.config.ModMenuIntegration"
 		]
 	},
-	"mixins": [
-		"blockberg_terminal.mixins.json"
-	],
+	"contact": {
+    	"issues": "https://github.com/aguilam/blockberg-terminal-mod/issues",
+    	"sources": "https://github.com/aguilam/blockberg-terminal-mod",
+    	"homepage": "https://github.com/aguilam/blockberg-terminal-mod"
+	},
 	"depends": {
 		"fabricloader": ">=0.16.10",
-		"minecraft": "~1.21.1",
+		"minecraft": "1.21.1",
 		"java": ">=21",
-		"fabric-api": "*",
-		"yet_another_config_lib_v3": ">=3.8.1+1.21.1-fabric"
+		"fabric-api": "*"
 	},
-	"suggests": {}
+	"suggests": {
+    	"yet_another_config_lib_v3": ">=3.8.1+1.21.1-fabric",
+    	"modmenu": "*"
+	}
 }

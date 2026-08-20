@@ -5,11 +5,13 @@ import com.google.gson.GsonBuilder;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.nio.file.Path;
 import java.util.concurrent.CompletableFuture;
 
 import com.aguilam.blockberg_terminal.local.LocalServer;
 public class ConfigManager {
     public static File file;
+    public static Path gameDir;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static boolean isSendBarrels = true;
     public static String apiUrl = "";
@@ -41,6 +43,7 @@ public class ConfigManager {
                 isSendBarrels = data.isSendBarrels;
                 apiUrl = data.apiUrl != null ? data.apiUrl : "";
                 apiKey = data.apiKey != null ? data.apiKey : "";
+                isLocalServer = data.isLocalServer;
                 serverApiKey = data.serverApiKey != null ? data.serverApiKey : "";
                 aiUrl = data.aiUrl != null ? data.aiUrl : "";
                 aiKey = data.aiKey != null ? data.aiKey : "";

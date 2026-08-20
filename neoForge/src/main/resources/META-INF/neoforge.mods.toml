@@ -1,6 +1,6 @@
 modLoader = "javafml"
-loaderVersion = "[4,)"
-issueTrackerURL = ""
+loaderVersion = "[1,)"
+issueTrackerURL = "https://github.com/aguilam/blockberg-terminal-mod/issues"
 license = "MIT"
 
 [[mods]]
@@ -9,21 +9,29 @@ version = "${version}"
 displayName = "Blockberg Terminal"
 authors = "Aguilam"
 description = '''
-Этот мод позволяет искать и фильтровать товары по всему ТЗ ППЛ
+This mod allows to save barrel items in your trade zone and search by them to find best offer
 '''
-displayTest="IGNORE_SERVER_VERSION"
+displayTest = "IGNORE_SERVER_VERSION"
 logoFile = "assets/blockberg-terminal/icon.png"
+displayURL = "https://github.com/aguilam/blockberg-terminal-mod"
 
-[[dependencies.blockberg-terminal]]
+[[dependencies.blockberg_terminal]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1,)"
+versionRange = "[21.1,21.2)"
 ordering = "NONE"
 side = "BOTH"
 
-[[dependencies.blockberg-terminal]]
+[[dependencies.blockberg_terminal]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.1,)"
+versionRange = "[1.21.1,1.21.2)"
 ordering = "NONE"
 side = "BOTH"
+
+[[dependencies.blockberg_terminal]]
+modId = "yet_another_config_lib_v3"
+type = "required"
+versionRange = "[3.8.2+1.21.1-neoforge,)"
+ordering = "NONE"
+side = "CLIENT"

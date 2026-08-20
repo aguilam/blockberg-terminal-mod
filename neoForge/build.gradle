@@ -27,7 +27,7 @@ version = project.mod_version
 group = project.maven_group
 
 base {
-	archivesName = project.archives_name
+	archivesName = "$project.archives_name-neoforge"
 }
 
 repositories {

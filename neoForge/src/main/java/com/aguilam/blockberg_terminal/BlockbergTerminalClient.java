@@ -1,10 +1,11 @@
 package com.aguilam.blockberg_terminal;
-import com.aguilam.blockberg_terminal.commands.Barrel;
-import com.aguilam.blockberg_terminal.commands.Regions;
+import java.io.IOException;
+import java.nio.file.Files;
+
+import com.aguilam.blockberg_terminal.commands.MasterCommand;
 import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.config.ConfigScreen;
 import com.aguilam.blockberg_terminal.feature.ProcessStorageScreen;
-import com.aguilam.blockberg_terminal.local.LocalServer;
 import com.aguilam.blockberg_terminal.region.RegionsManager;
 import com.aguilam.blockberg_terminal.render.RenderBlocks;
 
@@ -21,7 +22,12 @@ import net.neoforged.neoforge.common.NeoForge;
 public class BlockbergTerminalClient {
     public static void init(ModContainer modContainer) {
         ConfigManager.file = FMLPaths.CONFIGDIR.get().resolve("blockberg-terminal.json").toFile();
-        LocalServer.gameDir = FMLPaths.GAMEDIR.get();
+        ConfigManager.gameDir = FMLPaths.GAMEDIR.get().resolve("blockberg-terminal");
+        try {
+            Files.createDirectories(ConfigManager.gameDir);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create game directory", e);
+        }
         RegionsManager.loadRegions();
         ConfigManager.load();
 
@@ -35,15 +41,7 @@ public class BlockbergTerminalClient {
         
         NeoForge.EVENT_BUS.addListener((RegisterClientCommandsEvent event) -> {
             var dispatcher = event.getDispatcher();
-            dispatcher.register(Barrel.searchBarrels());
-            dispatcher.register(Barrel.showBarrelContent());
-            dispatcher.register(Barrel.searchSnapshot());
-            dispatcher.register(Regions.setMin());
-            dispatcher.register(Regions.setMax());
-            dispatcher.register(Regions.addRegion());
-            dispatcher.register(Regions.allRegions());
-            dispatcher.register(Regions.scan());
-            dispatcher.register(Regions.clearHighlighted());
+            dispatcher.register(MasterCommand.createMasterCommand());
         });
 
         NeoForge.EVENT_BUS.addListener((RenderLevelStageEvent event) -> {

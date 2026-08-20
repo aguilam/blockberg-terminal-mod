@@ -6,13 +6,15 @@ import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import com.aguilam.blockberg_terminal.commands.Regions;
 import com.aguilam.blockberg_terminal.config.ConfigManager;
-import com.aguilam.blockberg_terminal.commands.Barrel;
+
+import java.io.IOException;
+import java.nio.file.Files;
+
+import com.aguilam.blockberg_terminal.commands.MasterCommand;
 import com.aguilam.blockberg_terminal.render.RenderBlocks;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import com.aguilam.blockberg_terminal.feature.ProcessStorageScreen;
-import com.aguilam.blockberg_terminal.local.LocalServer;
 
 import net.fabricmc.loader.api.FabricLoader;
 import com.aguilam.blockberg_terminal.region.RegionsManager;
@@ -23,9 +25,14 @@ public class BlockbergTerminal implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ConfigManager.file = FabricLoader.getInstance().getConfigDir().resolve("blockberg-terminal.json").toFile();
-        LocalServer.gameDir = FabricLoader.getInstance().getGameDir();
-        RegionsManager.loadRegions();
+        ConfigManager.gameDir = FabricLoader.getInstance().getGameDir().resolve("blockberg-terminal");
+        try {
+            Files.createDirectories(ConfigManager.gameDir);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to create game directory", e);
+        }
         ConfigManager.load();
+        RegionsManager.loadRegions();
         ScreenEvents.AFTER_INIT.register((client, screen, scaledWidth, scaledHeight) -> {
             ProcessStorageScreen.checkStorageScreen(screen, client);
         });
@@ -35,15 +42,7 @@ public class BlockbergTerminal implements ClientModInitializer {
         });
         
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
-            dispatcher.register(Barrel.searchBarrels());
-            dispatcher.register(Barrel.showBarrelContent());
-            dispatcher.register(Barrel.searchSnapshot());
-            dispatcher.register(Regions.setMin());
-            dispatcher.register(Regions.setMax());
-            dispatcher.register(Regions.addRegion());
-            dispatcher.register(Regions.allRegions());
-            dispatcher.register(Regions.scan());
-            dispatcher.register(Regions.clearHighlighted());
+            dispatcher.register(MasterCommand.createMasterCommand());
         });
 
         WorldRenderEvents.LAST.register(context -> {

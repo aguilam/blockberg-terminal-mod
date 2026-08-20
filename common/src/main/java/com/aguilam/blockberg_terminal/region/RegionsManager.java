@@ -8,7 +8,7 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-
+import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.model.Regions.Region;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -17,11 +17,15 @@ import com.google.gson.reflect.TypeToken;
 import net.minecraft.core.BlockPos;
 
 public class RegionsManager {
-    private static final File regionsFile = new File("regions.json");
     public static final List<Region> regions = new ArrayList<>();
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
     public static BlockPos tempMinPos;
     public static BlockPos tempMaxPos;
+
+    private static File getRegionsFile() {
+        return ConfigManager.gameDir.resolve("regions.json").toFile();
+    }
+
     public static Region findRegionByName(String regionName) {
         for (Region region : regions) {
             if (region.getRegionName().equalsIgnoreCase(regionName)) {
@@ -32,7 +36,7 @@ public class RegionsManager {
     }
 
     public static void saveRegions() {
-        try (FileWriter writer = new FileWriter(regionsFile)) {
+        try (FileWriter writer = new FileWriter(getRegionsFile())) {
             gson.toJson(regions, writer);
         } catch (IOException e) {
             e.printStackTrace();
@@ -40,6 +44,7 @@ public class RegionsManager {
     }
     
     public static void loadRegions() {
+        File regionsFile = getRegionsFile();
         if (regionsFile.exists()) {
             try (FileReader reader = new FileReader(regionsFile)) {
                 Type listType = new TypeToken<List<Region>>() {}.getType();
