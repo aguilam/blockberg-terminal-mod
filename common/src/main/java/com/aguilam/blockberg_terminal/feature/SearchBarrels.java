@@ -68,7 +68,7 @@ public class SearchBarrels {
                         client.player.displayClientMessage(Component.translatable("blockberg_terminal.view_barrel_contents")
                             .withStyle(style -> style.withColor(0x00AAFF)
                             .withClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND,
-                                "/showbarrelcontent " + offer.id))), false);
+                                "/bbt showbarrelcontent " + offer.id))), false);
                     }
 
                     Integer colorValue = rankColor.getColor();
