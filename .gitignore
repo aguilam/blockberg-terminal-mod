@@ -1,3 +1,5 @@
+!server-windows-amd64.exe
+
 .gradle/
 build/
 out/
