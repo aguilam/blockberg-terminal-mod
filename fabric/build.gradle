@@ -43,31 +43,23 @@ repositories {
 }
 
 dependencies {
-	modImplementation "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
-	modImplementation "dev.isxander:yet-another-config-lib:${project.yacl_version}"
-	modImplementation "maven.modrinth:modmenu:${project.modmenu_version}"
+	api "net.fabricmc:fabric-loader:${project.fabric_loader_version}"
+	api "net.fabricmc.fabric-api:fabric-api:${project.fabric_version}"
+	implementation  "dev.isxander:yet-another-config-lib:${project.yacl_version}-fabric"
+    compileOnly("maven.modrinth:modmenu:${project.modmenu_version}") { transitive = false }
 	implementation 'com.google.code.gson:gson:2.10'
-    common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
+    common(project(path: ':common')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
 
-processResources {
-	inputs.property "version", project.version
-
-	filesMatching("fabric.mod.json") {
-		expand "version": project.version
-	}
-}
-
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
 	withSourcesJar()
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
@@ -78,18 +70,21 @@ jar {
 
 
 processResources {
-    inputs.property 'version', project.version
+    def replaceProperties = [
+        version: project.version,
+        minecraft_version: rootProject.minecraft_version,
+        fabric_loader_version: rootProject.fabric_loader_version,
+        yacl_version: rootProject.yacl_version
+    ]
+    inputs.properties(replaceProperties)
 
     filesMatching('fabric.mod.json') {
-        expand version: inputs.properties.version
+        expand(replaceProperties)
     }
 }
 
 shadowJar {
     configurations = [project.configurations.shadowBundle]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = null
 }
-
-remapJar {
-    inputFile.set shadowJar.archiveFile
-}
+assemble.dependsOn shadowJar

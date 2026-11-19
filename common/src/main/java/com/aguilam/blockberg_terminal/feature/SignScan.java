@@ -1,4 +1,6 @@
 package com.aguilam.blockberg_terminal.feature;
+import java.util.List;
+
 import com.aguilam.blockberg_terminal.model.Regions.Region;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -7,11 +9,12 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.BarrelBlock;
 import net.minecraft.world.level.block.WallSignBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
-import net.minecraft.world.level.block.entity.SignText;
+import net.minecraft.world.level.block.entity.SignTextSlot;
 import net.minecraft.world.level.block.state.BlockState;
 
 public class SignScan {
@@ -39,12 +42,22 @@ public class SignScan {
                         BlockState storage = world.getBlockState(attachedBlockPos);
                         if(storage.getBlock() instanceof BarrelBlock) {
                             StringBuilder signText = new StringBuilder();
-                            SignText signContent = sign.getText(true);
+                            List<Component> signContent = sign.getText(SignTextSlot.FRONT).getMessages(false);
+                            boolean hasText = true;
                             for (int i = 0; i < 4; i++) {
-                                String lineText = signContent.getMessage(i, false).getString();
-                                signText.append(lineText).append("\n");
+                                String lineText = signContent.get(i).getString();
+                                if(lineText.isBlank()) {
+                                    hasText = false;
+                                    continue;
+                                }
+                                signText.append(lineText);
+                                if (i < 3) {
+                                    signText.append("\n");
+                                }
                             }
-                            
+                            if (!hasText) {
+                                continue;
+                            }
                             JsonObject json = new JsonObject();
                             json.addProperty("x", attachedBlockPos.getX());
                             json.addProperty("y", attachedBlockPos.getY());

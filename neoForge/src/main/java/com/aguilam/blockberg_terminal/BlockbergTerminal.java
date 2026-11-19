@@ -9,7 +9,7 @@ import net.neoforged.fml.loading.FMLEnvironment;
 public class BlockbergTerminal {
     public static final String MOD_ID = "blockberg_terminal";
     public BlockbergTerminal(ModContainer modContainer, IEventBus modEventBus) {
-        if(FMLEnvironment.dist.isClient()){
+        if(FMLEnvironment.getDist().isClient()){
             BlockbergTerminalClient.init(modContainer);
         }
     }

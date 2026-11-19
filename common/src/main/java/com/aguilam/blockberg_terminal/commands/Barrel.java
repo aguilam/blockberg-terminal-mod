@@ -26,9 +26,9 @@ public class Barrel {
     public static <S> LiteralArgumentBuilder<S> searchBarrels(){
         return LiteralArgumentBuilder.<S>literal("searchbarrel")
         .then(RequiredArgumentBuilder.<S, Integer>argument("Page", IntegerArgumentType.integer(1))
-            .then(RequiredArgumentBuilder.<S, String>argument("Название товара", StringArgumentType.greedyString())
+            .then(RequiredArgumentBuilder.<S, String>argument("Query", StringArgumentType.greedyString())
                 .executes(context -> {
-                    String searchTerm = StringArgumentType.getString(context, "Название товара");
+                    String searchTerm = StringArgumentType.getString(context, "Query");
                     int page = IntegerArgumentType.getInteger(context, "Page");
                     HighlightedBlocks.clearBlocks();
                     SearchBarrels.searchBarrels(Minecraft.getInstance(), searchTerm, page);
@@ -36,9 +36,9 @@ public class Barrel {
                 })
             )
         )
-        .then(RequiredArgumentBuilder.<S, String>argument("Название товара", StringArgumentType.greedyString())
+        .then(RequiredArgumentBuilder.<S, String>argument("Query", StringArgumentType.greedyString())
             .executes(context -> {
-                String searchTerm = StringArgumentType.getString(context, "Название товара");
+                String searchTerm = StringArgumentType.getString(context, "Query");
                 HighlightedBlocks.clearBlocks();
                 SearchBarrels.searchBarrels(Minecraft.getInstance(), searchTerm, 1);
                 return 1;
@@ -51,8 +51,8 @@ public class Barrel {
         .then(RequiredArgumentBuilder.<S,Integer>argument("Page", IntegerArgumentType.integer(1))
             .then(RequiredArgumentBuilder.<S,String>argument("Item name", StringArgumentType.greedyString()))
                 .executes(context -> {
-                  String itemName = StringArgumentType.getString(context, "Page");
-                  int page = IntegerArgumentType.getInteger(context, "Item name");
+                  String itemName = StringArgumentType.getString(context, "Item name");
+                  int page = IntegerArgumentType.getInteger(context, "Page");
                   SearchSnapshots.SearchBySnapshots(Minecraft.getInstance(), itemName, page);
                   return 1;
                 })

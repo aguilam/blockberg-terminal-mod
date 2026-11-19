@@ -2,7 +2,7 @@ package com.aguilam.blockberg_terminal;
 
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
+import net.fabricmc.fabric.api.client.rendering.v1.level.LevelRenderEvents;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -45,8 +45,8 @@ public class BlockbergTerminal implements ClientModInitializer {
             dispatcher.register(MasterCommand.createMasterCommand());
         });
 
-        WorldRenderEvents.LAST.register(context -> {
-            RenderBlocks.renderHighlightedBlocks(context.matrixStack());
+        LevelRenderEvents.BEFORE_GIZMOS.register(context -> {
+            RenderBlocks.renderHighlightedBlocks(context.submitNodeCollector(),context.levelState().cameraRenderState);
         });
     }
 }

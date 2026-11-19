@@ -49,26 +49,33 @@ repositories {
 dependencies {
     neoForge "net.neoforged:neoforge:${project.neoforge_version}"
 	implementation 'com.google.code.gson:gson:2.10'
-    common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
+    common(project(path: ':common')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }
 
 processResources {
-    inputs.property 'version', project.version
+    def replaceProperties = [
+        version: project.version,
+        minecraft_version: rootProject.minecraft_version,
+        neoforge_version: rootProject.neoforge_version,
+        yacl_version: rootProject.yacl_version
+    ]
+
+    inputs.properties(replaceProperties)
 
     filesMatching('META-INF/neoforge.mods.toml') {
-        expand version: inputs.properties.version
+        expand(replaceProperties)
     }
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = 25
 }
 
 java {
 	withSourcesJar()
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.VERSION_25
+	targetCompatibility = JavaVersion.VERSION_25
 }
 
 jar {
@@ -79,9 +86,6 @@ jar {
 
 shadowJar {
     configurations = [project.configurations.shadowBundle]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = null
 }
-
-remapJar {
-    inputFile.set shadowJar.archiveFile
-}
+assemble.dependsOn shadowJar

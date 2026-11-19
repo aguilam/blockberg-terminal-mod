@@ -68,12 +68,6 @@ public class ProcessStorageScreen {
             int y = pos.getY();
             int z = pos.getZ();
     
-            //if (x < REGION_MIN_X || x > REGION_MAX_X ||
-            //    y < REGION_MIN_Y || y > REGION_MAX_Y ||
-            //    z < REGION_MIN_Z || z > REGION_MAX_Z) {
-            //    return;
-            //}
-    
             JsonArray itemsArray = new JsonArray();
             int totalSlots = Math.min(27, handler.slots.size());
             for (int i = 0; i < totalSlots; i++) {

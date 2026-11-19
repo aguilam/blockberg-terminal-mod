@@ -3,8 +3,10 @@ package com.aguilam.blockberg_terminal.local;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.ServerSocket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 
 import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.config.ConfigManager.ConfigData;
-import com.aguilam.blockberg_terminal.local.utils;
 
 public class LocalServer {
     private static Process serverProcess;
@@ -47,6 +48,8 @@ public class LocalServer {
             }
             targetExe.setExecutable(true);
             List<String> stringArgs = utils.buildArgs(args);
+            int port = findFreePort();
+            stringArgs.add("--" + "port" + "=" + port);
             List<String> command = new ArrayList<>();
             command.add(targetExe.getAbsolutePath());
             command.addAll(stringArgs);
@@ -76,6 +79,7 @@ public class LocalServer {
             System.out.println("Local server started");
             throw new IllegalStateException("Error while server start");
         } catch (Exception e) {
+            stopLocalServer();
             throw new RuntimeException("Failed to start local server", e);
         }
     }
@@ -83,6 +87,12 @@ public class LocalServer {
         if (serverProcess != null && serverProcess.isAlive()) {
             serverProcess.destroy();
             serverProcess = null;
+        }
+    }
+    private static int findFreePort() throws IOException {
+        try (ServerSocket socket = new ServerSocket(0)) {
+            socket.setReuseAddress(true);
+            return socket.getLocalPort();
         }
     }
 }

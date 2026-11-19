@@ -24,7 +24,7 @@ public class HighlightedBlocks {
             this.red = red;
             this.green = green;
             this.blue = blue;
-            this.alpha = 0.8f;
+            this.alpha = 0.4f;
             this.rank = rank;
         }
     }

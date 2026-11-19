@@ -24,13 +24,13 @@
     	"homepage": "https://github.com/aguilam/blockberg-terminal-mod"
 	},
 	"depends": {
-		"fabricloader": ">=0.16.10",
-		"minecraft": "1.21.1",
-		"java": ">=21",
+		"fabricloader": ">=${fabric_loader_version}",
+		"minecraft": "${minecraft_version}",
+		"java": ">=25",
 		"fabric-api": "*"
 	},
 	"suggests": {
-    	"yet_another_config_lib_v3": ">=3.8.1+1.21.1-fabric",
+    	"yet_another_config_lib_v3": ">=${yacl_version}-fabric",
     	"modmenu": "*"
 	}
 }

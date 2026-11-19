@@ -9,17 +9,17 @@ public class utils {
     public static List<String> buildArgs(ConfigData data) {
         List<String> args = new ArrayList<>();
 
-        addArg(args, "serverApiKey", data.serverApiKey);
-        addArg(args, "aiUrl", data.aiUrl);
-        addArg(args, "aiKey", data.aiKey);
-        addArg(args, "aiModel", data.aiModel);
+        addArg(args, "api-key", data.serverApiKey);
+        addArg(args, "ai-url", data.aiUrl);
+        addArg(args, "ai-key", data.aiKey);
+        addArg(args, "ai-model", data.aiModel);
 
-        addArg(args, "minX", data.minX);
-        addArg(args, "maxX", data.maxX);
-        addArg(args, "minY", data.minY);
-        addArg(args, "maxY", data.maxY);
-        addArg(args, "minZ", data.minZ);
-        addArg(args, "maxZ", data.maxZ);
+        addArg(args, "x-min", data.minX);
+        addArg(args, "x-max", data.maxX);
+        addArg(args, "y-min", data.minY);
+        addArg(args, "y-max", data.maxY);
+        addArg(args, "z-min", data.minZ);
+        addArg(args, "z-max", data.maxZ);
 
         return args;
     }

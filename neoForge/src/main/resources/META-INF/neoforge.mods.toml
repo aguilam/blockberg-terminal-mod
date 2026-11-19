@@ -18,20 +18,20 @@ displayURL = "https://github.com/aguilam/blockberg-terminal-mod"
 [[dependencies.blockberg_terminal]]
 modId = "neoforge"
 type = "required"
-versionRange = "[21.1,21.2)"
+versionRange = "[${neoforge_version},)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.blockberg_terminal]]
 modId = "minecraft"
 type = "required"
-versionRange = "[1.21.1,1.21.2)"
+versionRange = "[${minecraft_version},27)"
 ordering = "NONE"
 side = "BOTH"
 
 [[dependencies.blockberg_terminal]]
 modId = "yet_another_config_lib_v3"
 type = "required"
-versionRange = "[3.8.2+1.21.1-neoforge,)"
+versionRange = "[${yacl_version}-neoforge,)"
 ordering = "NONE"
 side = "CLIENT"
