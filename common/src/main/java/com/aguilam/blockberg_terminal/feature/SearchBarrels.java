@@ -5,6 +5,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import com.aguilam.blockberg_terminal.config.ConfigManager;
 import com.aguilam.blockberg_terminal.model.Barrel.BarrelSearchBody;
 import com.aguilam.blockberg_terminal.model.Barrel.BarrelSearchItem;
 import com.aguilam.blockberg_terminal.network.DataPost;
@@ -33,24 +34,22 @@ public class SearchBarrels {
                     HighlightedBlocks.drawShapeEnabled = true;
                     HighlightedBlocks.clearBlocks();
     
-                    TextColor[] rankColors = new TextColor[] {
-                        TextColor.YELLOW, TextColor.GOLD, TextColor.RED,
-                        TextColor.LIGHT_PURPLE, TextColor.AQUA, TextColor.GREEN,
-                        TextColor.BLUE, TextColor.DARK_GREEN, TextColor.DARK_PURPLE,
-                        TextColor.DARK_RED
-                    };
+                    int[] rankColors = { 0xFFFF00, 0xCCFF00, 0x80FF00, 0x33DD00, 0x00BB44, 0x268A20, 0x627A12, 0xB83F16, 0xD43C0D, 0x650000};
                     client.player.sendSystemMessage(Component.translatable("blockberg_terminal.search_results",offers.total,offers.page));
                     for (int i = 0; i < offers.barrels.length; i++) {
                         BarrelSearchItem offer = offers.barrels[i];
-                        TextColor rankColor = rankColors[i % rankColors.length];
+                        int rankColor = rankColors[i % rankColors.length];
+                        
                         MutableComponent formattedMessage = Component.literal((i + 1) + ". ")
-                                .withColor(rankColor.getValue())
+                                .withColor(rankColor)
                                 .append(Component.literal(offer.name))
-                                .withColor(rankColor.getValue())
-                                .append(Component.translatable("blockberg_terminal.search_seller", offer.seller))
+                                .withColor(rankColor)
                                 .append(Component.translatable("blockberg_terminal.search_price", offer.price))
-                                .append(Component.translatable("blockberg_terminal.search_quantity", offer.quantity))
-                                .append(Component.literal(" §7| XYZ: §5" + String.format("(%d, %d, %d)", offer.x, offer.y, offer.z)));
+                                .append(Component.translatable("blockberg_terminal.search_quantity", offer.quantity));
+                        if (ConfigManager.isExtendedMessages) {
+                            formattedMessage.append(Component.translatable("blockberg_terminal.search_seller", offer.seller))
+                            .append(Component.literal(" §7| XYZ: §5" + String.format("(%d, %d, %d)", offer.x, offer.y, offer.z)));
+                        }
                         try {
                             SimpleDateFormat isoFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'");
                         
@@ -71,10 +70,9 @@ public class SearchBarrels {
                                     style.withClickEvent(new ClickEvent.RunCommand("/bbt showbarrelcontent " + offer.id))));
                         }
     
-                        int colorValue = rankColor.getValue();
-                        float rNorm = ((colorValue >> 16) & 0xFF) / 255f;
-                        float gNorm = ((colorValue >> 8) & 0xFF) / 255f;
-                        float bNorm = (colorValue & 0xFF) / 255f;
+                        float rNorm = ((rankColor >> 16) & 0xFF) / 255f;
+                        float gNorm = ((rankColor >> 8) & 0xFF) / 255f;
+                        float bNorm = (rankColor & 0xFF) / 255f;
                         HighlightedBlocks.blocks.add(new HighlightedBlocks.HighlightedBlock(new BlockPos(offer.x, offer.y, offer.z), rNorm, gNorm, bNorm, i + 1));
                     }
     

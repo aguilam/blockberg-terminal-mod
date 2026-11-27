@@ -29,6 +29,7 @@
     "blockberg_terminal.client_settings": "Настройки Клиента",
     "blockberg_terminal.send_barrel_items": "Отправлять содержимое бочек",
     "blockberg_terminal.start_local_server": "Запустить локальный сервер",
+    "blockberg_terminal.is_extended_messages": "Расширенные сообщения",
     "blockberg_terminal.server_settings": "Настройки Сервера",
     "blockberg_terminal.server_api_key": "Api ключ сервера",
     "blockberg_terminal.ai_url": "URL AI поставщика",

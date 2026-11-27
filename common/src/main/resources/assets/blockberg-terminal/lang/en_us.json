@@ -31,6 +31,7 @@
     "blockberg_terminal.snapshot_info": "\nBarrel - X: %d Y: %d Z: %d",
     "blockberg_terminal.send_barrel_items": "Send Barrel Items",
     "blockberg_terminal.start_local_server": "Start local server",
+    "blockberg_terminal.is_extended_messages": "Extended messages",
     "blockberg_terminal.server_settings": "Server Settings",
     "blockberg_terminal.server_api_key": "Server API Key",
     "blockberg_terminal.ai_url": "AI Provider URL",

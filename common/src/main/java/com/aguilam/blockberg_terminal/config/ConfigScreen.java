@@ -46,6 +46,17 @@ public class ConfigScreen {
                 .controller(BooleanControllerBuilder::create)
                 .build()
             )
+            .option(
+                Option.<Boolean>createBuilder()
+                .name(Component.translatable("blockberg_terminal.is_extended_messages"))
+                .binding(
+                    true, 
+                    () -> ConfigManager.isExtendedMessages,
+                    val -> ConfigManager.isExtendedMessages = val
+                )
+                .controller(BooleanControllerBuilder::create)
+                .build()
+            )
             .build()
         )
         .category(ConfigCategory.createBuilder()

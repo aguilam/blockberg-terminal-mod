@@ -43,13 +43,13 @@ public class SignScan {
                         if(storage.getBlock() instanceof BarrelBlock) {
                             StringBuilder signText = new StringBuilder();
                             List<Component> signContent = sign.getText(SignTextSlot.FRONT).getMessages(false);
-                            boolean hasText = true;
+                            boolean hasText = false;
                             for (int i = 0; i < 4; i++) {
                                 String lineText = signContent.get(i).getString();
-                                if(lineText.isBlank()) {
-                                    hasText = false;
+                                if (lineText.isBlank()) {
                                     continue;
                                 }
+                                hasText = true;
                                 signText.append(lineText);
                                 if (i < 3) {
                                     signText.append("\n");

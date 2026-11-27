@@ -14,6 +14,7 @@ public class ConfigManager {
     public static Path gameDir;
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     public static boolean isSendBarrels = true;
+    public static boolean isExtendedMessages = true;
     public static String apiUrl = "";
     public static String apiKey = "";
     public static boolean isLocalServer = false;
@@ -43,6 +44,7 @@ public class ConfigManager {
                 isSendBarrels = data.isSendBarrels;
                 apiUrl = data.apiUrl != null ? data.apiUrl : "";
                 apiKey = data.apiKey != null ? data.apiKey : "";
+                isExtendedMessages = data.isExtendedMessages;
                 isLocalServer = data.isLocalServer;
                 serverApiKey = data.serverApiKey != null ? data.serverApiKey : "";
                 aiUrl = data.aiUrl != null ? data.aiUrl : "";
@@ -78,7 +80,7 @@ public class ConfigManager {
             ConfigData data = new ConfigData(
                 isSendBarrels, apiUrl, serverApiKey, apiKey, isLocalServer,
                 aiUrl, aiKey, aiModel,
-                minX, maxX, minY, maxY, minZ, maxZ
+                minX, maxX, minY, maxY, minZ, maxZ,isExtendedMessages
             );
             if (isLocalServer) {
                 CompletableFuture.supplyAsync(() -> LocalServer.startLocalServer(data)).thenAccept(url -> {
@@ -103,6 +105,7 @@ public class ConfigManager {
         public String apiUrl;
         public String apiKey;
         public boolean isLocalServer;
+        public boolean isExtendedMessages;
         public String serverApiKey;
         public String aiUrl;
         public String aiKey;
@@ -113,8 +116,9 @@ public class ConfigManager {
         public Integer minZ, maxZ;
 
         ConfigData(boolean isSendBarrels, String apiUrl, String serverApiKey, String apiKey, boolean isLocalServer, String aiUrl, String aiKey, String aiModel,
-            Integer minX, Integer maxX, Integer minY, Integer maxY, Integer minZ, Integer maxZ) {
+            Integer minX, Integer maxX, Integer minY, Integer maxY, Integer minZ, Integer maxZ,boolean isExtendedMessages) {
             this.isSendBarrels = isSendBarrels;
+            this.isExtendedMessages = isExtendedMessages;
             this.apiUrl = apiUrl;
             this.apiKey = apiKey;
             this.serverApiKey = serverApiKey;
