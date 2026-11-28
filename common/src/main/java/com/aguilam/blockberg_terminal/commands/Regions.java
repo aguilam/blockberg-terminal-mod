@@ -3,6 +3,7 @@ package com.aguilam.blockberg_terminal.commands;
 import com.aguilam.blockberg_terminal.model.Regions.Region;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.commands.SharedSuggestionProvider;
 import net.minecraft.network.chat.Component;
 import com.aguilam.blockberg_terminal.region.RegionsManager;
 import com.aguilam.blockberg_terminal.render.HighlightedBlocks;
@@ -21,6 +22,11 @@ public class Regions {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
                 RegionsManager.tempMinPos = client.player.blockPosition();
+                if (RegionsManager.tempMaxPos != null && RegionsManager.tempMinPos != null) {
+                    RegionsManager.regionsForRender.clear();
+                    RegionsManager.regionsForRender.add(new Region(RegionsManager.tempMinPos, RegionsManager.tempMaxPos, "selected"));
+                    RegionsManager.isDrawEnabled = true;
+                }
                 client.player.sendSystemMessage(Component.translatable("blockberg_terminal.temp_min_set", RegionsManager.tempMinPos));
             }
             return 1;
@@ -34,6 +40,11 @@ public class Regions {
             Minecraft client = Minecraft.getInstance();
             if (client.player != null) {
                 RegionsManager.tempMaxPos = client.player.blockPosition();
+                if (RegionsManager.tempMaxPos != null && RegionsManager.tempMinPos != null) {
+                    RegionsManager.regionsForRender.clear();
+                    RegionsManager.regionsForRender.add(new Region(RegionsManager.tempMinPos, RegionsManager.tempMaxPos, "selected"));
+                    RegionsManager.isDrawEnabled = true;
+                }
                 client.player.sendSystemMessage(Component.translatable("blockberg_terminal.temp_max_set", RegionsManager.tempMaxPos));
             }
             return 1;
@@ -80,9 +91,40 @@ public class Regions {
                 }));
     }
 
+    public static <S> LiteralArgumentBuilder<S> deleteRegion() {
+        return LiteralArgumentBuilder.<S>literal("deletereg")
+        .then(RequiredArgumentBuilder.<S,String>argument("regionName", StringArgumentType.word())
+            .suggests((context, builder) ->
+                SharedSuggestionProvider.suggest(
+                    RegionsManager.regions.stream()
+                        .map(Region::getRegionName),
+                    builder
+                )
+            )
+            .executes(context ->{
+                String regionName = StringArgumentType.getString(context, "regionName");
+                RegionsManager.deleteRegion(regionName);
+                return 1;
+            }));
+    }
+
+    public static <S> LiteralArgumentBuilder<S> renderRegions() {
+        return LiteralArgumentBuilder.<S>literal("showreg")
+        .executes(context ->{
+            RegionsManager.isDrawEnabled = !RegionsManager.isDrawEnabled;
+            return 1;
+        });
+    }
     public static <S> LiteralArgumentBuilder<S> scan() {
         return LiteralArgumentBuilder.<S>literal("scan")
         .then(RequiredArgumentBuilder.<S, String>argument("regionName", StringArgumentType.word())
+            .suggests((context, builder) ->
+                SharedSuggestionProvider.suggest(
+                    RegionsManager.regions.stream()
+                        .map(Region::getRegionName),
+                    builder
+                )
+            )
             .executes(context -> {
                 String regionName = StringArgumentType.getString(context, "regionName");
                 Minecraft client = Minecraft.getInstance();
@@ -107,5 +149,4 @@ public class Regions {
             return 1;
         }); 
     }
-
 }

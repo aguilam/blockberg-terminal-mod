@@ -46,6 +46,7 @@ public class BlockbergTerminalClient {
 
         NeoForge.EVENT_BUS.addListener((SubmitCustomGeometryEvent event) -> {
             RenderBlocks.renderHighlightedBlocks(event.getSubmitNodeCollector(),event.getLevelRenderState().cameraRenderState);
+            RegionsManager.renderRegion(event.getSubmitNodeCollector(),event.getLevelRenderState().cameraRenderState);
         });
 
         modContainer.registerExtensionPoint(IConfigScreenFactory.class, (container, parentScreen) -> ConfigScreen.createConfigScreen(parentScreen));

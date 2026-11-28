@@ -10,6 +10,8 @@ public class MasterCommand {
             .then(Barrel.showBarrelContent())
             .then(Regions.addRegion())
             .then(Regions.allRegions())
+            .then(Regions.deleteRegion())
+            .then(Regions.renderRegions())
             .then(Regions.setMin())
             .then(Regions.setMax())
             .then(Regions.scan())
